@@ -1,88 +1,60 @@
 package com.jsh.erp.utils;
 
 import com.alibaba.fastjson2.JSONObject;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.entity.EntityBuilder;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
-import static org.apache.http.HttpStatus.SC_OK;
+import java.util.concurrent.TimeUnit;
 
 public final class HttpClient {
-    private static Logger logger = LoggerFactory.getLogger(HttpClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpClient.class);
 
-    private static final RequestConfig REQUEST_CONFIG = RequestConfig.custom().setSocketTimeout(15000).setConnectTimeout(10000).build();
+    private static final MediaType JSON_MEDIA_TYPE = MediaType.parse("application/json; charset=utf-8");
+
+    private static final OkHttpClient CLIENT = new OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .build();
 
     /**
-     * 采用Get方式发送请求，获取响应数据
-     * @param url
-     * @return
+     * GET 请求，返回解析后的 JSON 对象
      */
-    public static JSONObject httpGet(String url){
-        CloseableHttpClient client = HttpClientBuilder.create().build();
-        HttpGet httpGet = new HttpGet(url);
-        httpGet.setConfig(REQUEST_CONFIG);
-        try {
-            CloseableHttpResponse chr = client.execute(httpGet);
-            int statusCode = chr.getStatusLine().getStatusCode();
-            if (SC_OK != statusCode) {
+    public static JSONObject httpGet(String url) {
+        Request request = new Request.Builder().url(url).get().build();
+        try (Response response = CLIENT.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
                 throw new RuntimeException(String.format("%s查询出现异常", url));
             }
-            String entity = EntityUtils.toString(chr.getEntity(), StandardCharsets.UTF_8);
-            JSONObject object = JSONObject.parseObject(entity);
-            return object;
-        } catch (Exception e) {
+            ResponseBody body = response.body();
+            String entity = body != null ? body.string() : "";
+            return JSONObject.parseObject(entity);
+        } catch (IOException e) {
             logger.error(e.getMessage(), e);
-            throw new RuntimeException(String.format("%s", url) + "查询出现异常");
-        } finally {
-            try {
-                client.close();
-            } catch (IOException e) {
-                logger.error(e.getMessage(), e);
-            }
+            throw new RuntimeException(String.format("%s查询出现异常", url));
         }
     }
 
     /**
-     * 采用Post方式发送请求，获取响应数据
-     *
-     * @param url        url地址
-     * @param param  参数值键值对的字符串
-     * @return
+     * POST 请求，body 为 JSON 字符串，返回响应体字符串
      */
     public static String httpPost(String url, String param) {
-        CloseableHttpClient client = HttpClientBuilder.create().build();
-        try {
-            HttpPost post = new HttpPost(url);
-            EntityBuilder builder = EntityBuilder.create();
-            builder.setContentType(ContentType.APPLICATION_JSON);
-            builder.setText(param);
-            post.setEntity(builder.build());
-
-            CloseableHttpResponse response = client.execute(post);
-            int statusCode = response.getStatusLine().getStatusCode();
-
-            HttpEntity entity = response.getEntity();
-            String data = EntityUtils.toString(entity, StandardCharsets.UTF_8);
-            logger.info("状态:"+statusCode+",数据:"+data);
+        RequestBody body = RequestBody.create(param, JSON_MEDIA_TYPE);
+        Request request = new Request.Builder().url(url).post(body).build();
+        try (Response response = CLIENT.newCall(request).execute()) {
+            int statusCode = response.code();
+            ResponseBody respBody = response.body();
+            String data = respBody != null ? respBody.string() : "";
+            logger.info("状态:{},数据:{}", statusCode, data);
             return data;
-        } catch(Exception e){
+        } catch (IOException e) {
             throw new RuntimeException(e.getMessage());
-        } finally {
-            try{
-                client.close();
-            }catch(Exception ex){ }
         }
     }
 }

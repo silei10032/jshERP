@@ -1,246 +1,181 @@
 package com.jsh.erp.utils;
 
-import java.io.*;
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.util.*;
-
-import jxl.*;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.write.metadata.WriteSheet;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
-import jxl.format.*;
-import jxl.write.Label;
-import jxl.write.WritableCellFormat;
-import jxl.write.WritableFont;
-import jxl.write.WritableSheet;
-import jxl.write.WritableWorkbook;
 
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
+/**
+ * Excel 工具类（EasyExcel 实现，替换原 jxl）。
+ *
+ * 兼容方面说明：
+ * - 文件格式：原 jxl 仅支持 .xls，本实现统一输出 .xlsx；下载头同步改为 .xlsx
+ * - 单元格样式：原代码为 * 字段标红、表头黑体、边框等。这是 UX 装饰，对功能没影响，
+ *   EasyExcel 默认样式已足够清晰，故不再迁移
+ * - 读取：jxl Sheet 的随机访问模式（getContent(sheet, row, col)）以 SheetRows 包装
+ *   List&lt;Map&lt;Integer,String&gt;&gt; 保留同等 API
+ */
 @Slf4j
 public class ExcelUtils {
 
-	public static InputStream getPathByFileName(String template, String tmpFileName) {
-		File tmpFile = new File(template, tmpFileName);
-		InputStream path = null;
-		//判断文件或文件夹是否存在
-		if (tmpFile.exists()) {
-			try {
-				path = new FileInputStream(tmpFile);
-			} catch (FileNotFoundException e) {
-				log.error("", e);
-			}
-		}
-		return path;
-	}
+    /** 读取后的工作表，包装 EasyExcel 同步读结果，提供索引式访问 */
+    public static class SheetRows {
+        private final List<Map<Integer, String>> rows;
 
-	/**
-	 * 导出excel，带多sheet
-	 *
-	 * @param wtwb
-	 * @param tip
-	 * @param names
-	 * @param title
-	 * @param index
-	 * @param objects
-	 * @return
-	 * @throws Exception
-	 */
-	public static void exportObjectsManySheet(WritableWorkbook wtwb, String tip,
-											  String[] names, String title, int index, List<String[]> objects) throws Exception {
-		WritableSheet sheet = wtwb.createSheet(title, index);
-		sheet.getSettings().setDefaultColumnWidth(12);
+        public SheetRows(List<Map<Integer, String>> rows) {
+            this.rows = rows;
+        }
 
-		// 标题的格式-红色
-		WritableFont redWF = new WritableFont(WritableFont.ARIAL, 12,
-				WritableFont.BOLD, false, UnderlineStyle.NO_UNDERLINE,
-				Colour.RED);
-		WritableCellFormat redWFFC = new WritableCellFormat(redWF);
-		redWFFC.setVerticalAlignment(VerticalAlignment.CENTRE);
-		redWFFC.setBorder(Border.ALL, BorderLineStyle.THIN);
+        public int rowCount() {
+            return rows == null ? 0 : rows.size();
+        }
 
-		// 标题的格式-黑色
-		WritableFont blackWF = new WritableFont(WritableFont.ARIAL, 12,
-				WritableFont.BOLD, false, UnderlineStyle.NO_UNDERLINE,
-				Colour.BLACK);
-		WritableCellFormat blackWFFC = new WritableCellFormat(blackWF);
-		blackWFFC.setVerticalAlignment(VerticalAlignment.CENTRE);
-		blackWFFC.setBorder(Border.ALL, BorderLineStyle.THIN);
+        public String getString(int rowIdx, int colIdx) {
+            if (rows == null || rowIdx >= rows.size()) {
+                return null;
+            }
+            Map<Integer, String> row = rows.get(rowIdx);
+            return row == null ? null : row.get(colIdx);
+        }
 
-		// 设置字体以及单元格格式
-		WritableFont wfont = new WritableFont(WritableFont.createFont("楷书"), 12);
-		WritableCellFormat format = new WritableCellFormat(wfont);
-		format.setAlignment(Alignment.LEFT);
-		format.setVerticalAlignment(VerticalAlignment.TOP);
-		format.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN);
+        public int columnCountOf(int rowIdx) {
+            if (rows == null || rowIdx >= rows.size()) {
+                return 0;
+            }
+            Map<Integer, String> row = rows.get(rowIdx);
+            return row == null ? 0 : row.size();
+        }
+    }
 
-		// 第一行写入提示
-		if(com.jsh.erp.utils.StringUtil.isNotEmpty(tip) && tip.contains("*")) {
-			sheet.addCell(new Label(0, 0, tip, redWFFC));
-		} else {
-			sheet.addCell(new Label(0, 0, tip, blackWFFC));
-		}
+    public static InputStream getPathByFileName(String template, String tmpFileName) {
+        File tmpFile = new File(template, tmpFileName);
+        if (tmpFile.exists()) {
+            try {
+                return new FileInputStream(tmpFile);
+            } catch (FileNotFoundException e) {
+                log.error("", e);
+            }
+        }
+        return null;
+    }
 
-		// 第二行写入标题
-		for (int i = 0; i < names.length; i++) {
-			if(StringUtil.isNotEmpty(names[i]) && names[i].contains("*")) {
-				sheet.addCell(new Label(i, 1, names[i], redWFFC));
-			} else {
-				sheet.addCell(new Label(i, 1, names[i], blackWFFC));
-			}
-		}
+    /** 同步读取指定 sheet，返回 SheetRows */
+    public static SheetRows readSheet(InputStream in, int sheetIndex) {
+        List<Map<Integer, String>> rows = EasyExcel.read(in).sheet(sheetIndex).headRowNumber(0).doReadSync();
+        return new SheetRows(rows);
+    }
 
-		// 其余行依次写入数据
-		int rowNum = 2;
-		for (int j = 0; j < objects.size(); j++) {
-			String[] obj = objects.get(j);
-			for (int h = 0; h < obj.length; h++) {
-				sheet.addCell(new Label(h, rowNum, obj[h], format));
-			}
-			rowNum = rowNum + 1;
-		}
-	}
+    /**
+     * 多 sheet 导出：在已有的 ExcelWriter 上追加一个 sheet。
+     * 数据布局：第 0 行写 tip 提示，第 1 行写标题，从第 2 行开始写数据。
+     */
+    public static void exportObjectsManySheet(ExcelWriter writer, String tip, String[] names,
+                                              String title, int index, List<String[]> objects) {
+        WriteSheet sheet = EasyExcel.writerSheet(index, title).build();
+        List<List<String>> data = new ArrayList<>();
+        data.add(List.of(tip == null ? "" : tip));
+        data.add(Arrays.asList(names));
+        for (String[] row : objects) {
+            data.add(Arrays.asList(row));
+        }
+        writer.write(data, sheet);
+    }
 
-	/**
-	 * 导出excel，带单个sheet
-	 *
-	 * @param fileName
-	 * @param names
-	 * @param title
-	 * @param objects
-	 * @return
-	 * @throws Exception
-	 */
+    /**
+     * 单 sheet 导出到文件。布局同 exportObjectsManySheet。
+     */
+    public static File exportObjectsOneSheet(String path, String fileName, String tip,
+                                             String[] names, String title, List<Object[]> objects) {
+        FileUtils.makedir(path);
+        File excelFile = new File(path + File.separator + fileName);
+        try (ExcelWriter writer = EasyExcel.write(excelFile).build()) {
+            WriteSheet sheet = EasyExcel.writerSheet(0, title).build();
+            List<List<Object>> data = new ArrayList<>();
+            data.add(List.of((Object) (tip == null ? "" : tip)));
+            data.add(Arrays.asList((Object[]) names));
+            for (Object[] row : objects) {
+                List<Object> rowList = new ArrayList<>(row.length);
+                for (Object cell : row) {
+                    if (cell instanceof BigDecimal || cell instanceof Double
+                            || cell instanceof Integer || cell instanceof Long) {
+                        rowList.add(Double.parseDouble(cell.toString()));
+                    } else {
+                        rowList.add(cell == null ? "" : cell.toString());
+                    }
+                }
+                data.add(rowList);
+            }
+            writer.write(data, sheet);
+        }
+        return excelFile;
+    }
 
-	public static File exportObjectsOneSheet(String path, String fileName, String tip,
-											 String[] names, String title, List<Object[]> objects) throws Exception {
-		FileUtils.makedir(path);
-		File excelFile = new File(path + File.separator + fileName);
-		WritableWorkbook wtwb = Workbook.createWorkbook(excelFile);
-		WritableSheet sheet = wtwb.createSheet(title, 0);
-		sheet.getSettings().setDefaultColumnWidth(12);
+    public static String getContent(SheetRows src, int rowNum, int colNum) {
+        String val = src.getString(rowNum, colNum);
+        return val == null ? null : val.trim();
+    }
 
-		// 标题的格式-红色
-		WritableFont redWF = new WritableFont(WritableFont.ARIAL, 12,
-				WritableFont.BOLD, false, UnderlineStyle.NO_UNDERLINE, Colour.RED);
-		WritableCellFormat redWFFC = new WritableCellFormat(redWF);
-		redWFFC.setVerticalAlignment(VerticalAlignment.CENTRE);
-		redWFFC.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN);
+    public static String getContentNumber(SheetRows src, int rowNum, int colNum) {
+        String val = src.getString(rowNum, colNum);
+        if (val == null) {
+            return null;
+        }
+        try {
+            double value = Double.parseDouble(val.trim());
+            DecimalFormat df = new DecimalFormat("#.######");
+            return df.format(value);
+        } catch (NumberFormatException e) {
+            return val.trim();
+        }
+    }
 
-		// 标题的格式-黑色
-		WritableFont blackWF = new WritableFont(WritableFont.ARIAL, 12,
-				WritableFont.BOLD, false, UnderlineStyle.NO_UNDERLINE, Colour.BLACK);
-		WritableCellFormat blackWFFC = new WritableCellFormat(blackWF);
-		blackWFFC.setVerticalAlignment(VerticalAlignment.CENTRE);
-		blackWFFC.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN);
+    /** 真实行数：从首行往后，扣除全部列均为空白的行 */
+    public static int getRightRows(SheetRows src) {
+        int total = src.rowCount();
+        int rightRows = total;
+        for (int i = 1; i < total; i++) {
+            int cols = src.columnCountOf(i);
+            int nullCellNum = 0;
+            for (int j = 0; j < cols; j++) {
+                String val = src.getString(i, j);
+                if (StringUtils.isEmpty(val == null ? null : val.trim())) {
+                    nullCellNum++;
+                }
+            }
+            if (cols == 0 || nullCellNum >= cols) {
+                rightRows--;
+            }
+        }
+        return rightRows;
+    }
 
-		// 设置字体以及单元格格式
-		WritableFont wfont = new WritableFont(WritableFont.createFont("楷书"), 12);
-		WritableCellFormat format = new WritableCellFormat(wfont);
-		format.setAlignment(Alignment.LEFT);
-		format.setVerticalAlignment(VerticalAlignment.TOP);
-		format.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN);
-
-		// 第一行写入提示
-		if(StringUtil.isNotEmpty(tip) && tip.contains("*")) {
-			sheet.addCell(new Label(0, 0, tip, redWFFC));
-		} else {
-			sheet.addCell(new Label(0, 0, tip, blackWFFC));
-		}
-
-		// 第二行写入标题
-		for (int i = 0; i < names.length; i++) {
-			if(StringUtil.isNotEmpty(names[i]) && names[i].contains("*")) {
-				sheet.addCell(new Label(i, 1, names[i], redWFFC));
-			} else {
-				sheet.addCell(new Label(i, 1, names[i], blackWFFC));
-			}
-		}
-
-		// 其余行依次写入数据
-		int rowNum = 2;
-		for (int j = 0; j < objects.size(); j++) {
-			Object[] obj = objects.get(j);
-			for (int h = 0; h < obj.length; h++) {
-				if(obj[h] instanceof String) {
-					sheet.addCell(new Label(h, rowNum, obj[h].toString(), format));
-				} else if(obj[h] instanceof BigDecimal || obj[h] instanceof Double || obj[h] instanceof Integer || obj[h] instanceof Long) {
-					sheet.addCell(new jxl.write.Number(h, rowNum, Double.parseDouble(obj[h].toString()), format));
-				} else {
-					String cont = obj[h]!=null?obj[h].toString():"";
-					sheet.addCell(new Label(h, rowNum, cont, format));
-				}
-			}
-			rowNum = rowNum + 1;
-		}
-		wtwb.write();
-		wtwb.close();
-		return excelFile;
-	}
-
-	public static String getContent(Sheet src, int rowNum, int colNum) {
-		if(colNum < src.getRow(rowNum).length) {
-			return src.getRow(rowNum)[colNum].getContents().trim();
-		} else {
-			return null;
-		}
-	}
-
-	public static String getContentNumber(Sheet src, int rowNum, int colNum) {
-		if(colNum < src.getRow(rowNum).length) {
-			Cell cell = src.getCell(colNum, rowNum);
-			if(cell.getType() == CellType.NUMBER) {
-				NumberCell numCell = (NumberCell)cell;
-				double value = numCell.getValue(); // 获取完整精度的数值
-				DecimalFormat df = new DecimalFormat("#.######"); // 设置足够多的小数位
-				return df.format(value);
-			} else {
-				return cell.getContents().trim(); // 获取原始字符串内容
-			}
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * 获取真实的行数，剔除掉空白行
-	 * @param src
-	 * @return
-	 */
-	public static int getRightRows(Sheet src) {
-		int rsRows = src.getRows(); //行数
-		int rsCols = src.getColumns(); //列数
-		int nullCellNum;
-		int rightRows = rsRows;
-		for (int i = 1; i < rsRows; i++) { //统计行中为空的单元格数
-			nullCellNum = 0;
-			for (int j = 0; j < rsCols; j++) {
-				String val = src.getCell(j, i).getContents().trim();
-				if (StringUtils.isEmpty(val)) {
-					nullCellNum++;
-				}
-			}
-			if (nullCellNum >= rsCols) { //如果nullCellNum大于或等于总的列数
-				rightRows--; //行数减一
-			}
-		}
-		return rightRows;
-	}
-
-	public static void downloadExcel(File excelFile, String fileName, HttpServletResponse response) throws Exception{
-		response.setContentType("application/octet-stream");
-		fileName = new String(fileName.getBytes("gbk"),"ISO8859_1");
-		response.setHeader("Content-Disposition", "attachment;filename=\"" + fileName + ".xls" + "\"");
-		FileInputStream fis = new FileInputStream(excelFile);
-		OutputStream out = response.getOutputStream();
-
-		int SIZE = 1024 * 1024;
-		byte[] bytes = new byte[SIZE];
-		int LENGTH = -1;
-		while((LENGTH = fis.read(bytes)) != -1){
-			out.write(bytes,0,LENGTH);
-		}
-		out.flush();
-		fis.close();
-	}
+    public static void downloadExcel(File excelFile, String fileName, HttpServletResponse response) throws Exception {
+        response.setContentType("application/octet-stream");
+        String encodedName = new String(fileName.getBytes("gbk"), StandardCharsets.ISO_8859_1);
+        response.setHeader("Content-Disposition", "attachment;filename=\"" + encodedName + ".xlsx\"");
+        try (FileInputStream fis = new FileInputStream(excelFile)) {
+            OutputStream out = response.getOutputStream();
+            byte[] bytes = new byte[1024 * 1024];
+            int length;
+            while ((length = fis.read(bytes)) != -1) {
+                out.write(bytes, 0, length);
+            }
+            out.flush();
+        }
+    }
 }

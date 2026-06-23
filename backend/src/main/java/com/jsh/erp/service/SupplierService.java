@@ -10,8 +10,6 @@ import com.jsh.erp.datasource.vo.SupplierSimple;
 import com.jsh.erp.exception.BusinessRunTimeException;
 import com.jsh.erp.exception.JshException;
 import com.jsh.erp.utils.*;
-import jxl.Sheet;
-import jxl.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -454,11 +452,10 @@ public class SupplierService {
     public void importVendor(MultipartFile file, HttpServletRequest request) throws Exception{
         String type = "供应商";
         User userInfo = userService.getCurrentUser();
-        Workbook workbook = Workbook.getWorkbook(file.getInputStream());
-        Sheet src = workbook.getSheet(0);
+        ExcelUtils.SheetRows src = ExcelUtils.readSheet(file.getInputStream(), 0);
         //'名称', '联系人', '手机号码', '联系电话', '电子邮箱', '传真', '期初应付', '纳税人识别号', '税率(%)', '开户行', '账号', '地址', '备注', '排序', '状态'
         List<Supplier> sList = new ArrayList<>();
-        for (int i = 2; i < src.getRows(); i++) {
+        for (int i = 2; i < src.rowCount(); i++) {
             String supplierName = ExcelUtils.getContent(src, i, 0);
             String enabled = ExcelUtils.getContent(src, i, 14);
             if(StringUtil.isNotEmpty(supplierName) && StringUtil.isNotEmpty(enabled)) {
@@ -490,11 +487,10 @@ public class SupplierService {
     public void importCustomer(MultipartFile file, HttpServletRequest request) throws Exception{
         String type = "客户";
         User userInfo = userService.getCurrentUser();
-        Workbook workbook = Workbook.getWorkbook(file.getInputStream());
-        Sheet src = workbook.getSheet(0);
+        ExcelUtils.SheetRows src = ExcelUtils.readSheet(file.getInputStream(), 0);
         //'名称', '联系人', '手机号码', '联系电话', '电子邮箱', '传真', '期初应收', '纳税人识别号', '税率(%)', '开户行', '账号', '地址', '备注', '排序', '状态'
         List<Supplier> sList = new ArrayList<>();
-        for (int i = 2; i < src.getRows(); i++) {
+        for (int i = 2; i < src.rowCount(); i++) {
             String supplierName = ExcelUtils.getContent(src, i, 0);
             String enabled = ExcelUtils.getContent(src, i, 14);
             if(StringUtil.isNotEmpty(supplierName) && StringUtil.isNotEmpty(enabled)) {
@@ -526,11 +522,10 @@ public class SupplierService {
     public void importMember(MultipartFile file, HttpServletRequest request) throws Exception{
         String type = "会员";
         User userInfo = userService.getCurrentUser();
-        Workbook workbook = Workbook.getWorkbook(file.getInputStream());
-        Sheet src = workbook.getSheet(0);
+        ExcelUtils.SheetRows src = ExcelUtils.readSheet(file.getInputStream(), 0);
         //'名称', '联系人', '手机号码', '联系电话', '电子邮箱', '备注', '排序', '状态'
         List<Supplier> sList = new ArrayList<>();
-        for (int i = 2; i < src.getRows(); i++) {
+        for (int i = 2; i < src.rowCount(); i++) {
             String supplierName = ExcelUtils.getContent(src, i, 0);
             String enabled = ExcelUtils.getContent(src, i, 7);
             if(StringUtil.isNotEmpty(supplierName) && StringUtil.isNotEmpty(enabled)) {

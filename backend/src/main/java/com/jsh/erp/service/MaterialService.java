@@ -12,8 +12,6 @@ import com.jsh.erp.datasource.vo.MaterialVoSearch;
 import com.jsh.erp.exception.BusinessRunTimeException;
 import com.jsh.erp.exception.JshException;
 import com.jsh.erp.utils.*;
-import jxl.Sheet;
-import jxl.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -581,8 +579,7 @@ public class MaterialService {
                             ExceptionConstants.FILE_EXTENSION_ERROR_MSG);
                 }
             }
-            Workbook workbook = Workbook.getWorkbook(file.getInputStream());
-            Sheet src = workbook.getSheet(0);
+            ExcelUtils.SheetRows src = ExcelUtils.readSheet(file.getInputStream(), 0);
             //获取真实的行数，剔除掉空白行
             int rightRows = ExcelUtils.getRightRows(src);
             List<Depot> depotList= depotService.getDepot();
@@ -914,11 +911,11 @@ public class MaterialService {
      * @return
      * @throws Exception
      */
-    private Map<Long, BigDecimal> getStockMapCache(Sheet src, int depotCount, Map<String, Long> depotMap, int i) throws Exception {
+    private Map<Long, BigDecimal> getStockMapCache(ExcelUtils.SheetRows src, int depotCount, Map<String, Long> depotMap, int i) throws Exception {
         Map<Long, BigDecimal> stockMap = new HashMap<>();
         for(int j = 1; j<= depotCount; j++) {
             int col = 26 + j;
-            if(col < src.getColumns()){
+            if(col < src.columnCountOf(1)){
                 String depotName = ExcelUtils.getContent(src, 1, col); //获取仓库名称
                 if(StringUtil.isNotEmpty(depotName)) {
                     Long depotId = depotMap.get(depotName);

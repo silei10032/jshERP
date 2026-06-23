@@ -15,8 +15,8 @@ import com.jsh.erp.utils.ExcelUtils;
 import com.jsh.erp.utils.PageUtils;
 import com.jsh.erp.utils.StringUtil;
 import com.jsh.erp.utils.Tools;
-import jxl.Workbook;
-import jxl.write.WritableWorkbook;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -1590,7 +1590,7 @@ public class DepotHeadService {
             //生成Excel文件
             String fileName = "单据信息";
             File file = new File(fileExportTmp + fileName);
-            WritableWorkbook wtwb = Workbook.createWorkbook(file);
+            ExcelWriter wtwb = EasyExcel.write(file).build();
             String oneTip = "";
             String sheetOneStr = "";
             if("采购".equals(subType)) {
@@ -1686,8 +1686,7 @@ public class DepotHeadService {
                 }
                 ExcelUtils.exportObjectsManySheet(wtwb, twoTip, sheetTwoArr, "单据明细", 1, billDetail);
             }
-            wtwb.write();
-            wtwb.close();
+            wtwb.finish();
             ExcelUtils.downloadExcel(file, file.getName(), response);
         } catch(Exception e){
             JshException.readFail(logger, e);

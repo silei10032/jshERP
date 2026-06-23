@@ -21,8 +21,6 @@ import com.jsh.erp.service.UserService;
 import com.jsh.erp.utils.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
-import jxl.Sheet;
-import jxl.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -1092,16 +1090,15 @@ public class DepotItemController {
                             ExceptionConstants.FILE_EXTENSION_ERROR_MSG);
                 }
             }
-            Workbook workbook = Workbook.getWorkbook(file.getInputStream());
-            Sheet  src = workbook.getSheet(0);
-            if(src.getRows()>1000) {
+            ExcelUtils.SheetRows src = ExcelUtils.readSheet(file.getInputStream(), 0);
+            if(src.rowCount()>1000) {
                 message = "导入失败，明细不能超出1000条";
                 res.code = 500;
                 data.put("message", message);
                 res.data = data;
             } else {
                 List<Map<String, String>> detailList = new ArrayList<>();
-                for (int i = 2; i < src.getRows(); i++) {
+                for (int i = 2; i < src.rowCount(); i++) {
                     String depotName = "", barCode = "", num = "", unitPrice = "", taxRate = "", remark = "";
                     if("QGD".equals(prefixNo)) {
                         barCode = ExcelUtils.getContent(src, i, 0);
