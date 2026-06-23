@@ -42,12 +42,6 @@ tenant:
   # 租户允许试用的天数
   tryDayLimit: 3000
 
-# 插件配置
-plugin:
-  runMode: prod
-  pluginPath: plugins
-  pluginConfigFilePath: pluginConfig
-
 file:
   # 文件上传方式 1-本机 2-oss
   uploadType: 1
