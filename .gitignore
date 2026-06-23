@@ -1,6 +1,8 @@
 ## ide
 **/.idea
 *.iml
+.DS_Store
+**/.DS_Store
 
 ## backend
 **/target
