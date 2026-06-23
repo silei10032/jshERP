@@ -1,44 +1,46 @@
 package com.jsh.erp.config;
 
-import com.baomidou.mybatisplus.core.parser.ISqlParser;
-import com.baomidou.mybatisplus.core.parser.ISqlParserFilter;
-import com.baomidou.mybatisplus.core.parser.SqlParserHelper;
-import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.PerformanceInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.tenant.TenantHandler;
-import com.baomidou.mybatisplus.extension.plugins.tenant.TenantSqlParser;
+import com.baomidou.mybatisplus.annotation.DbType;
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.handler.TenantLineHandler;
+import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerInterceptor;
 import com.jsh.erp.utils.Tools;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
-import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.reflection.MetaObject;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
+/**
+ * 多租户 + 分页拦截器配置（MyBatis-Plus 3.5 新 API）。
+ *
+ * 原 MP 3.0 时代使用 PaginationInterceptor + TenantSqlParser + ISqlParserFilter，
+ * 3.5 改为 MybatisPlusInterceptor + TenantLineInnerInterceptor + 在 mapper 方法上
+ * 加 @InterceptorIgnore(tenantLine="true") 跳过个别查询。
+ */
 @Service
 public class TenantConfig {
 
+    /** 全租户共享的表名白名单，对这些表不注入 tenant_id 过滤 */
+    private static final Set<String> TENANT_IGNORE_TABLES = Set.of(
+            "jsh_sequence", "jsh_function", "jsh_platform_config",
+            "jsh_tenant", "jsh_sys_dict_data", "jsh_sys_dict_type"
+    );
+
     @Bean
-    public PaginationInterceptor paginationInterceptor(HttpServletRequest request) {
-        PaginationInterceptor paginationInterceptor = new PaginationInterceptor();
-        List<ISqlParser> sqlParserList = new ArrayList<>();
-        TenantSqlParser tenantSqlParser = new TenantSqlParser();
-        tenantSqlParser.setTenantHandler(new TenantHandler() {
+    public MybatisPlusInterceptor mybatisPlusInterceptor(HttpServletRequest request) {
+        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+        // 多租户拦截器必须放在分页之前
+        interceptor.addInnerInterceptor(new TenantLineInnerInterceptor(new TenantLineHandler() {
             @Override
             public Expression getTenantId() {
                 String token = request.getHeader("X-Access-Token");
                 Long tenantId = Tools.getTenantIdByToken(token);
-                if (tenantId!=0L) {
-                    return new LongValue(tenantId);
-                } else {
-                    //超管
-                    return null;
-                }
+                return new LongValue(tenantId);
             }
 
             @Override
@@ -47,74 +49,25 @@ public class TenantConfig {
             }
 
             @Override
-            public boolean doTableFilter(String tableName) {
-                //获取开启状态
-                Boolean res = true;
+            public boolean ignoreTable(String tableName) {
                 String token = request.getHeader("X-Access-Token");
                 Long tenantId = Tools.getTenantIdByToken(token);
-                if (tenantId!=0L) {
-                    // 这里可以判断是否过滤表
-                    if ("jsh_sequence".equals(tableName) || "jsh_function".equals(tableName)
-                            || "jsh_platform_config".equals(tableName) || "jsh_tenant".equals(tableName)
-                            || "jsh_sys_dict_data".equals(tableName) || "jsh_sys_dict_type".equals(tableName)) {
-                        res = true;
-                    } else {
-                        res = false;
-                    }
-                }
-                return res;
-            }
-        });
-
-        sqlParserList.add(tenantSqlParser);
-        paginationInterceptor.setSqlParserList(sqlParserList);
-        paginationInterceptor.setSqlParserFilter(new ISqlParserFilter() {
-            @Override
-            public boolean doFilter(MetaObject metaObject) {
-                MappedStatement ms = SqlParserHelper.getMappedStatement(metaObject);
-                // 过滤自定义查询此时无租户信息约束出现
-                if ("com.jsh.erp.datasource.mappers.UserMapperEx.getUserByWeixinOpenId".equals(ms.getId())) {
-                    return true;
-                } else if ("com.jsh.erp.datasource.mappers.UserMapperEx.updateUserWithWeixinOpenId".equals(ms.getId())) {
-                    return true;
-                } else if ("com.jsh.erp.datasource.mappers.UserMapperEx.getUserListByUserNameOrLoginName".equals(ms.getId())) {
-                    return true;
-                } else if ("com.jsh.erp.datasource.mappers.UserMapperEx.disableUserByLimit".equals(ms.getId())) {
-                    return true;
-                } else if ("com.jsh.erp.datasource.mappers.RoleMapperEx.getRoleWithoutTenant".equals(ms.getId())) {
-                    return true;
-                } else if ("com.jsh.erp.datasource.mappers.LogMapperEx.insertLogWithUserId".equals(ms.getId())) {
-                    return true;
-                } else if ("com.jsh.erp.datasource.mappers.UserBusinessMapperEx.getBasicDataByKeyIdAndType".equals(ms.getId())) {
-                    return true;
-                } else if ("com.jsh.erp.datasource.mappers.SysDictDataMapper.selectDictDataList".equals(ms.getId())) {
+                // 超管 tenantId == 0：所有表跳过 tenant 过滤
+                if (tenantId == 0L) {
                     return true;
                 }
-                return false;
+                // 普通租户：共享表白名单跳过
+                return TENANT_IGNORE_TABLES.contains(tableName);
             }
-        });
-        return paginationInterceptor;
+        }));
+        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
+        return interceptor;
     }
 
-    /**
-     * 相当于顶部的：
-     * {@code @MapperScan("com.jsh.erp.datasource.mappers*")}
-     * 这里可以扩展，比如使用配置文件来配置扫描Mapper的路径
-     */
     @Bean
     public MapperScannerConfigurer mapperScannerConfigurer() {
         MapperScannerConfigurer scannerConfigurer = new MapperScannerConfigurer();
         scannerConfigurer.setBasePackage("com.jsh.erp.datasource.mappers*");
         return scannerConfigurer;
     }
-
-    /**
-     * 性能分析拦截器，不建议生产使用
-     */
-//    @Bean
-//    public PerformanceInterceptor performanceInterceptor(){
-//        return new PerformanceInterceptor();
-//    }
-
-
 }

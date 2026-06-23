@@ -1,5 +1,6 @@
 package com.jsh.erp.datasource.mappers;
 
+import com.baomidou.mybatisplus.annotation.InterceptorIgnore;
 import com.jsh.erp.datasource.entities.SysDictData;
 import com.jsh.erp.datasource.entities.SysDictType;
 import org.apache.ibatis.annotations.Param;
@@ -19,6 +20,7 @@ public interface SysDictDataMapper
      * @param dictData 字典数据信息
      * @return 字典数据集合信息
      */
+    @InterceptorIgnore(tenantLine = "true")
     public List<SysDictData> selectDictDataList(SysDictData dictData);
 
     /**

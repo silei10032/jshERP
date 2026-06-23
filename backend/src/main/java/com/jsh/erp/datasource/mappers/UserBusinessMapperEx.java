@@ -1,5 +1,6 @@
 package com.jsh.erp.datasource.mappers;
 
+import com.baomidou.mybatisplus.annotation.InterceptorIgnore;
 import com.jsh.erp.datasource.entities.UserBusiness;
 import org.apache.ibatis.annotations.Param;
 
@@ -16,6 +17,7 @@ public interface UserBusinessMapperEx {
 
     int batchDeleteUserBusinessByIds(@Param("updateTime") Date updateTime, @Param("updater") Long updater, @Param("ids") String ids[]);
 
+    @InterceptorIgnore(tenantLine = "true")
     List<UserBusiness> getBasicDataByKeyIdAndType(
             @Param("keyId") String keyId,
             @Param("type") String type);

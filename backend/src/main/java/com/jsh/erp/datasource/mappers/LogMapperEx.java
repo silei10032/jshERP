@@ -1,5 +1,6 @@
 package com.jsh.erp.datasource.mappers;
 
+import com.baomidou.mybatisplus.annotation.InterceptorIgnore;
 import com.jsh.erp.datasource.entities.Log;
 import com.jsh.erp.datasource.entities.LogExample;
 import com.jsh.erp.datasource.vo.LogVo4List;
@@ -25,5 +26,6 @@ public interface LogMapperEx {
             @Param("clientIp") String clientIp,
             @Param("createTime") String createTime);
 
+    @InterceptorIgnore(tenantLine = "true")
     int insertLogWithUserId(Log log);
 }
