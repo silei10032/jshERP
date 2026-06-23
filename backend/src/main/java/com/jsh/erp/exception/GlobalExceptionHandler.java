@@ -1,6 +1,6 @@
 package com.jsh.erp.exception;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.jsh.erp.constants.ExceptionConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;

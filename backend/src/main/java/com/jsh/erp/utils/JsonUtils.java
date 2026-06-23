@@ -1,7 +1,7 @@
 package com.jsh.erp.utils;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 
 /**
  * Created by jishenghua 2018-5-11 09:48:08

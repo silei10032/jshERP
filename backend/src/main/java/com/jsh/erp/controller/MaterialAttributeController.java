@@ -1,7 +1,7 @@
 package com.jsh.erp.controller;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.jsh.erp.base.BaseController;
 import com.jsh.erp.base.TableDataInfo;
 import com.jsh.erp.datasource.entities.MaterialAttribute;
@@ -9,8 +9,8 @@ import com.jsh.erp.service.MaterialAttributeService;
 import com.jsh.erp.utils.Constants;
 import com.jsh.erp.utils.ErpInfo;
 import com.jsh.erp.utils.StringUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +29,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/materialAttribute")
-@Api(tags = {"商品属性"})
+@Tag(name = "商品属性")
 public class MaterialAttributeController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(MaterialAttributeController.class);
 
@@ -37,7 +37,7 @@ public class MaterialAttributeController extends BaseController {
     private MaterialAttributeService materialAttributeService;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "根据id获取信息")
+    @Operation(summary = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         MaterialAttribute materialAttribute = materialAttributeService.getMaterialAttribute(id);
@@ -51,7 +51,7 @@ public class MaterialAttributeController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "获取信息列表")
+    @Operation(summary = "获取信息列表")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String attributeName = StringUtil.getInfo(search, "attributeName");
@@ -61,7 +61,7 @@ public class MaterialAttributeController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "新增")
+    @Operation(summary = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = materialAttributeService.insertMaterialAttribute(obj, request);
@@ -69,7 +69,7 @@ public class MaterialAttributeController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "修改")
+    @Operation(summary = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = materialAttributeService.updateMaterialAttribute(obj, request);
@@ -77,7 +77,7 @@ public class MaterialAttributeController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除")
+    @Operation(summary = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = materialAttributeService.deleteMaterialAttribute(id, request);
@@ -85,7 +85,7 @@ public class MaterialAttributeController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "批量删除")
+    @Operation(summary = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = materialAttributeService.batchDeleteMaterialAttribute(ids, request);
@@ -93,7 +93,7 @@ public class MaterialAttributeController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "检查名称是否存在")
+    @Operation(summary = "检查名称是否存在")
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -112,7 +112,7 @@ public class MaterialAttributeController extends BaseController {
      * @return
      */
     @GetMapping(value = "/getNameList")
-    @ApiOperation(value = "获取商品属性的名称列表")
+    @Operation(summary = "获取商品属性的名称列表")
     public JSONArray getNameList(HttpServletRequest request)throws Exception {
         JSONArray dataArray = new JSONArray();
         try {
@@ -137,7 +137,7 @@ public class MaterialAttributeController extends BaseController {
      * @return
      */
     @GetMapping(value = "/getValueListById")
-    @ApiOperation(value = "获取id查询属性的值列表")
+    @Operation(summary = "获取id查询属性的值列表")
     public JSONArray getValueListById(@RequestParam("id") Long id,
                                      HttpServletRequest request)throws Exception {
         JSONArray dataArray = new JSONArray();

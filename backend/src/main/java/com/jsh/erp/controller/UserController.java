@@ -1,8 +1,8 @@
 package com.jsh.erp.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.jsh.erp.base.BaseController;
 import com.jsh.erp.base.TableDataInfo;
 import com.jsh.erp.constants.BusinessConstants;
@@ -15,8 +15,8 @@ import com.jsh.erp.exception.BusinessParamCheckingException;
 import com.jsh.erp.exception.BusinessRunTimeException;
 import com.jsh.erp.service.*;
 import com.jsh.erp.utils.*;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +37,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/user")
-@Api(tags = {"用户管理"})
+@Tag(name = "用户管理")
 public class UserController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -63,7 +63,7 @@ public class UserController extends BaseController {
     private static String ERROR = "操作失败";
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "根据id获取信息")
+    @Operation(summary = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         User user = userService.getUser(id);
@@ -77,7 +77,7 @@ public class UserController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "获取信息列表")
+    @Operation(summary = "获取信息列表")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String userName = StringUtil.getInfo(search, "userName");
@@ -87,7 +87,7 @@ public class UserController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "新增")
+    @Operation(summary = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = userService.insertUser(obj, request);
@@ -95,7 +95,7 @@ public class UserController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "修改")
+    @Operation(summary = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = userService.updateUser(obj, request);
@@ -103,7 +103,7 @@ public class UserController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除")
+    @Operation(summary = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = userService.deleteUser(id, request);
@@ -111,7 +111,7 @@ public class UserController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "批量删除")
+    @Operation(summary = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = userService.batchDeleteUser(ids, request);
@@ -119,7 +119,7 @@ public class UserController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "检查名称是否存在")
+    @Operation(summary = "检查名称是否存在")
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -133,7 +133,7 @@ public class UserController extends BaseController {
     }
 
     @PostMapping(value = "/login")
-    @ApiOperation(value = "登录")
+    @Operation(summary = "登录")
     public BaseResponseInfo login(@RequestBody UserEx userParam, HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -152,7 +152,7 @@ public class UserController extends BaseController {
     }
 
     @PostMapping(value = "/weixinLogin")
-    @ApiOperation(value = "微信登录")
+    @Operation(summary = "微信登录")
     public BaseResponseInfo weixinLogin(@RequestBody JSONObject jsonObject,
                                   HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -177,7 +177,7 @@ public class UserController extends BaseController {
     }
 
     @PostMapping(value = "/weixinBind")
-    @ApiOperation(value = "绑定微信")
+    @Operation(summary = "绑定微信")
     public String weixinBind(@RequestBody JSONObject jsonObject,
                              HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -193,7 +193,7 @@ public class UserController extends BaseController {
     }
 
     @GetMapping(value = "/getUserSession")
-    @ApiOperation(value = "获取用户信息")
+    @Operation(summary = "获取用户信息")
     public BaseResponseInfo getSessionUser(HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -213,7 +213,7 @@ public class UserController extends BaseController {
     }
 
     @GetMapping(value = "/logout")
-    @ApiOperation(value = "退出")
+    @Operation(summary = "退出")
     public BaseResponseInfo logout(HttpServletRequest request, HttpServletResponse response)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -228,7 +228,7 @@ public class UserController extends BaseController {
     }
 
     @PostMapping(value = "/resetPwd")
-    @ApiOperation(value = "重置密码")
+    @Operation(summary = "重置密码")
     public String resetPwd(@RequestBody JSONObject jsonObject,
                                      HttpServletRequest request) throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -243,7 +243,7 @@ public class UserController extends BaseController {
     }
 
     @PutMapping(value = "/updatePwd")
-    @ApiOperation(value = "更新密码")
+    @Operation(summary = "更新密码")
     public String updatePwd(@RequestBody JSONObject jsonObject, HttpServletRequest request)throws Exception {
         Integer flag = 0;
         Map<String, Object> objectMap = new HashMap<String, Object>();
@@ -283,7 +283,7 @@ public class UserController extends BaseController {
      * @throws Exception
      */
     @GetMapping(value = "/getUserList")
-    @ApiOperation(value = "用户列表")
+    @Operation(summary = "用户列表")
     public JSONArray getUserList(HttpServletRequest request)throws Exception {
         JSONArray dataArray = new JSONArray();
         try {
@@ -311,7 +311,7 @@ public class UserController extends BaseController {
      * @return java.lang.Object
      */
     @PostMapping("/addUser")
-    @ApiOperation(value = "新增用户")
+    @Operation(summary = "新增用户")
     @ResponseBody
     public Object addUser(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception{
         JSONObject result = ExceptionConstants.standardSuccess();
@@ -339,7 +339,7 @@ public class UserController extends BaseController {
      * @return java.lang.Object
      */
     @PutMapping("/updateUser")
-    @ApiOperation(value = "修改用户")
+    @Operation(summary = "修改用户")
     @ResponseBody
     public Object updateUser(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception{
         JSONObject result = ExceptionConstants.standardSuccess();
@@ -355,7 +355,7 @@ public class UserController extends BaseController {
      * @throws Exception
      */
     @PostMapping(value = "/registerUser")
-    @ApiOperation(value = "注册用户")
+    @Operation(summary = "注册用户")
     public Object registerUser(@RequestBody UserEx ue,
                                HttpServletRequest request)throws Exception{
         JSONObject result = ExceptionConstants.standardSuccess();
@@ -372,7 +372,7 @@ public class UserController extends BaseController {
      * @throws Exception
      */
     @RequestMapping("/getOrganizationUserTree")
-    @ApiOperation(value = "获取部门用户树")
+    @Operation(summary = "获取部门用户树")
     public JSONArray getOrganizationUserTree()throws Exception{
         JSONArray arr=new JSONArray();
         List<TreeNodeEx> organizationUserTree= userService.getOrganizationUserTree();
@@ -387,7 +387,7 @@ public class UserController extends BaseController {
     }
 
     @GetMapping(value = "/getCurrentPriceLimit")
-    @ApiOperation(value = "查询当前用户的价格屏蔽")
+    @Operation(summary = "查询当前用户的价格屏蔽")
     public BaseResponseInfo getCurrentPriceLimit(HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -410,7 +410,7 @@ public class UserController extends BaseController {
      * @return
      */
     @GetMapping("/getRoleTypeByCurrentUser")
-    @ApiOperation(value = "获取当前用户的角色类型")
+    @Operation(summary = "获取当前用户的角色类型")
     public BaseResponseInfo getRoleTypeByCurrentUser(HttpServletRequest request) {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -434,7 +434,7 @@ public class UserController extends BaseController {
      * @return
      */
     @GetMapping("/getUserBtnByCurrentUser")
-    @ApiOperation(value = "获取当前用户的按钮权限")
+    @Operation(summary = "获取当前用户的按钮权限")
     public BaseResponseInfo getUserBtnByCurrentUser(HttpServletRequest request) {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -463,7 +463,7 @@ public class UserController extends BaseController {
      * @return
      */
     @GetMapping(value = "/getUserWithChecked")
-    @ApiOperation(value = "获取对应的用户显示")
+    @Operation(summary = "获取对应的用户显示")
     public JSONArray getUserWithChecked(@RequestParam("UBType") String type, @RequestParam("UBValue") String oneValue,
                                   HttpServletRequest request) throws Exception{
         JSONArray arr = new JSONArray();
@@ -509,7 +509,7 @@ public class UserController extends BaseController {
      * @return
      */
     @GetMapping(value = "/randomImage")
-    @ApiOperation(value = "获取随机校验码")
+    @Operation(summary = "获取随机校验码")
     public BaseResponseInfo randomImage(HttpServletResponse response){
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -538,7 +538,7 @@ public class UserController extends BaseController {
      * @return
      */
     @PostMapping(value = "/batchSetStatus")
-    @ApiOperation(value = "批量设置状态")
+    @Operation(summary = "批量设置状态")
     public String batchSetStatus(@RequestBody JSONObject jsonObject,
                                  HttpServletRequest request)throws Exception {
         Byte status = jsonObject.getByte("status");
@@ -558,7 +558,7 @@ public class UserController extends BaseController {
      * @return
      */
     @GetMapping(value = "/infoWithTenant")
-    @ApiOperation(value = "获取当前用户的用户数量和租户信息")
+    @Operation(summary = "获取当前用户的用户数量和租户信息")
     public BaseResponseInfo infoWithTenant(HttpServletRequest request){
         BaseResponseInfo res = new BaseResponseInfo();
         try {

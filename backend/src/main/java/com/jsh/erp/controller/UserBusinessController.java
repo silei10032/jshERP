@@ -1,13 +1,13 @@
 package com.jsh.erp.controller;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.jsh.erp.datasource.entities.UserBusiness;
 import com.jsh.erp.service.UserBusinessService;
 import com.jsh.erp.utils.BaseResponseInfo;
 import com.jsh.erp.utils.ErpInfo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +26,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/userBusiness")
-@Api(tags = {"用户角色模块的关系"})
+@Tag(name = "用户角色模块的关系")
 public class UserBusinessController {
     private Logger logger = LoggerFactory.getLogger(UserBusinessController.class);
 
@@ -34,7 +34,7 @@ public class UserBusinessController {
     private UserBusinessService userBusinessService;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "根据id获取信息")
+    @Operation(summary = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         UserBusiness userBusiness = userBusinessService.getUserBusiness(id);
@@ -48,7 +48,7 @@ public class UserBusinessController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "新增")
+    @Operation(summary = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = userBusinessService.insertUserBusiness(obj, request);
@@ -56,7 +56,7 @@ public class UserBusinessController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "修改")
+    @Operation(summary = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = userBusinessService.updateUserBusiness(obj, request);
@@ -64,7 +64,7 @@ public class UserBusinessController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除")
+    @Operation(summary = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = userBusinessService.deleteUserBusiness(id, request);
@@ -72,7 +72,7 @@ public class UserBusinessController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "批量删除")
+    @Operation(summary = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = userBusinessService.batchDeleteUserBusiness(ids, request);
@@ -80,7 +80,7 @@ public class UserBusinessController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "检查名称是否存在")
+    @Operation(summary = "检查名称是否存在")
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -102,7 +102,7 @@ public class UserBusinessController {
      * @throws Exception
      */
     @GetMapping(value = "/getBasicData")
-    @ApiOperation(value = "获取信息")
+    @Operation(summary = "获取信息")
     public BaseResponseInfo getBasicData(@RequestParam(value = "KeyId") String keyId,
                                          @RequestParam(value = "Type") String type,
                                          HttpServletRequest request)throws Exception {
@@ -130,7 +130,7 @@ public class UserBusinessController {
      * @throws Exception
      */
     @GetMapping(value = "/checkIsValueExist")
-    @ApiOperation(value = "校验存在")
+    @Operation(summary = "校验存在")
     public String checkIsValueExist(@RequestParam(value ="type", required = false) String type,
                                    @RequestParam(value ="keyId", required = false) String keyId,
                                    HttpServletRequest request)throws Exception {
@@ -147,7 +147,7 @@ public class UserBusinessController {
      * @return
      */
     @PostMapping(value = "/updateBtnStr")
-    @ApiOperation(value = "更新角色的按钮权限")
+    @Operation(summary = "更新角色的按钮权限")
     public BaseResponseInfo updateBtnStr(@RequestBody JSONObject jsonObject,
                                          HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -176,7 +176,7 @@ public class UserBusinessController {
      * @return
      */
     @PostMapping(value = "/updateOneValueByKeyIdAndType")
-    @ApiOperation(value = "根据KeyId和类型更新一个值")
+    @Operation(summary = "根据KeyId和类型更新一个值")
     public BaseResponseInfo updateOneValueByKeyIdAndType(@RequestBody JSONObject jsonObject,
                                                          HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();

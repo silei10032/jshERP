@@ -1,15 +1,15 @@
 package com.jsh.erp.controller;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.jsh.erp.base.BaseController;
 import com.jsh.erp.base.TableDataInfo;
 import com.jsh.erp.datasource.entities.*;
 import com.jsh.erp.datasource.vo.MaterialDepotStock;
 import com.jsh.erp.service.*;
 import com.jsh.erp.utils.*;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,7 +33,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/material")
-@Api(tags = {"商品管理"})
+@Tag(name = "商品管理")
 public class MaterialController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(MaterialController.class);
 
@@ -65,7 +65,7 @@ public class MaterialController extends BaseController {
     private Long fileUploadType;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "根据id获取信息")
+    @Operation(summary = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         Material material = materialService.getMaterial(id);
@@ -79,7 +79,7 @@ public class MaterialController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "获取信息列表")
+    @Operation(summary = "获取信息列表")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String categoryId = StringUtil.getInfo(search, "categoryId");
@@ -106,7 +106,7 @@ public class MaterialController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "新增")
+    @Operation(summary = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = materialService.insertMaterial(obj, request);
@@ -114,7 +114,7 @@ public class MaterialController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "修改")
+    @Operation(summary = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = materialService.updateMaterial(obj, request);
@@ -122,7 +122,7 @@ public class MaterialController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除")
+    @Operation(summary = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = materialService.deleteMaterial(id, request);
@@ -130,7 +130,7 @@ public class MaterialController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "批量删除")
+    @Operation(summary = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = materialService.batchDeleteMaterial(ids, request);
@@ -138,7 +138,7 @@ public class MaterialController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "检查名称是否存在")
+    @Operation(summary = "检查名称是否存在")
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -169,7 +169,7 @@ public class MaterialController extends BaseController {
      * @throws Exception
      */
     @GetMapping(value = "/checkIsExist")
-    @ApiOperation(value = "检查商品是否存在")
+    @Operation(summary = "检查商品是否存在")
     public String checkIsExist(@RequestParam("id") Long id, @RequestParam("name") String name,
                                @RequestParam("model") String model, @RequestParam("color") String color,
                                @RequestParam("standard") String standard, @RequestParam("mfrs") String mfrs,
@@ -196,7 +196,7 @@ public class MaterialController extends BaseController {
      * @throws Exception
      */
     @PostMapping(value = "/batchSetStatus")
-    @ApiOperation(value = "批量设置状态-启用或者禁用")
+    @Operation(summary = "批量设置状态-启用或者禁用")
     public String batchSetStatus(@RequestBody JSONObject jsonObject,
                                  HttpServletRequest request)throws Exception {
         Boolean status = jsonObject.getBoolean("status");
@@ -217,7 +217,7 @@ public class MaterialController extends BaseController {
      * @return
      */
     @GetMapping(value = "/findById")
-    @ApiOperation(value = "根据id来查询商品名称")
+    @Operation(summary = "根据id来查询商品名称")
     public BaseResponseInfo findById(@RequestParam("id") Long id, HttpServletRequest request) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -239,7 +239,7 @@ public class MaterialController extends BaseController {
      * @return
      */
     @GetMapping(value = "/findByIdWithBarCode")
-    @ApiOperation(value = "根据meId来查询商品名称")
+    @Operation(summary = "根据meId来查询商品名称")
     public BaseResponseInfo findByIdWithBarCode(@RequestParam("meId") Long meId,
                                                 @RequestParam("mpList") String mpList,
                                                 HttpServletRequest request) throws Exception{
@@ -269,7 +269,7 @@ public class MaterialController extends BaseController {
      * @return
      */
     @GetMapping(value = "/getMaterialByParam")
-    @ApiOperation(value = "根据关键词查找商品信息")
+    @Operation(summary = "根据关键词查找商品信息")
     public BaseResponseInfo getMaterialByParam(@RequestParam("q") String q,
                                    HttpServletRequest request) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
@@ -292,7 +292,7 @@ public class MaterialController extends BaseController {
      * @return
      */
     @GetMapping(value = "/findBySelect")
-    @ApiOperation(value = "查找商品信息")
+    @Operation(summary = "查找商品信息")
     public JSONObject findBySelect(@RequestParam(value = "categoryId", required = false) Long categoryId,
                                   @RequestParam(value = "q", required = false) String q,
                                   @RequestParam(value = "standardOrModel", required = false) String standardOrModel,
@@ -405,7 +405,7 @@ public class MaterialController extends BaseController {
      * @throws Exception
      */
     @GetMapping(value = "/getMaterialByMeId")
-    @ApiOperation(value = "根据商品id查找商品信息")
+    @Operation(summary = "根据商品id查找商品信息")
     public JSONObject getMaterialByMeId(@RequestParam(value = "meId", required = false) Long meId,
                                         @RequestParam("mpList") String mpList,
                                         HttpServletRequest request) throws Exception{
@@ -460,7 +460,7 @@ public class MaterialController extends BaseController {
      * @param response
      */
     @GetMapping(value = "/exportExcel")
-    @ApiOperation(value = "生成excel表格")
+    @Operation(summary = "生成excel表格")
     public void exportExcel(@RequestParam(value = "categoryId", required = false) String categoryId,
                             @RequestParam(value = "materialParam", required = false) String materialParam,
                             @RequestParam(value = "color", required = false) String color,
@@ -491,7 +491,7 @@ public class MaterialController extends BaseController {
      * @return
      */
     @PostMapping(value = "/importExcel")
-    @ApiOperation(value = "excel表格导入产品")
+    @Operation(summary = "excel表格导入产品")
     public BaseResponseInfo importExcel(MultipartFile file,
                             HttpServletRequest request, HttpServletResponse response) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
@@ -514,7 +514,7 @@ public class MaterialController extends BaseController {
      * @throws Exception
      */
     @GetMapping(value = "/getMaterialEnableSerialNumberList")
-    @ApiOperation(value = "获取商品序列号")
+    @Operation(summary = "获取商品序列号")
     public JSONObject getMaterialEnableSerialNumberList(
                                 @RequestParam(value = "q", required = false) String q,
                                 @RequestParam("page") Integer currentPage,
@@ -539,7 +539,7 @@ public class MaterialController extends BaseController {
      * @throws Exception
      */
     @GetMapping(value = "/getMaxBarCode")
-    @ApiOperation(value = "获取最大条码")
+    @Operation(summary = "获取最大条码")
     public BaseResponseInfo getMaxBarCode() throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         Map<String, Object> map = new HashMap<String, Object>();
@@ -556,7 +556,7 @@ public class MaterialController extends BaseController {
      * @throws Exception
      */
     @GetMapping(value = "/getMaterialNameList")
-    @ApiOperation(value = "商品名称模糊匹配")
+    @Operation(summary = "商品名称模糊匹配")
     public JSONArray getMaterialNameList() throws Exception {
         JSONArray arr = new JSONArray();
         try {
@@ -579,7 +579,7 @@ public class MaterialController extends BaseController {
      * @throws Exception
      */
     @GetMapping(value = "/getMaterialByBarCode")
-    @ApiOperation(value = "根据条码查询商品信息")
+    @Operation(summary = "根据条码查询商品信息")
     public BaseResponseInfo getMaterialByBarCode(@RequestParam("barCode") String barCode,
                                           @RequestParam(value = "organId", required = false) Long organId,
                                           @RequestParam(value = "depotId", required = false) Long depotId,
@@ -737,7 +737,7 @@ public class MaterialController extends BaseController {
      * @throws Exception
      */
     @GetMapping(value = "/getListWithStock")
-    @ApiOperation(value = "商品库存查询")
+    @Operation(summary = "商品库存查询")
     public BaseResponseInfo getListWithStock(@RequestParam("currentPage") Integer currentPage,
                                              @RequestParam("pageSize") Integer pageSize,
                                              @RequestParam(value = "depotIds", required = false) String depotIds,
@@ -807,7 +807,7 @@ public class MaterialController extends BaseController {
      * @throws Exception
      */
     @PostMapping(value = "/batchSetMaterialCurrentStock")
-    @ApiOperation(value = "批量设置商品当前的实时库存（按每个仓库）")
+    @Operation(summary = "批量设置商品当前的实时库存（按每个仓库）")
     public String batchSetMaterialCurrentStock(@RequestBody JSONObject jsonObject,
                                  HttpServletRequest request)throws Exception {
         String ids = jsonObject.getString("ids");
@@ -832,7 +832,7 @@ public class MaterialController extends BaseController {
      * @throws Exception
      */
     @PostMapping(value = "/batchSetMaterialCurrentUnitPrice")
-    @ApiOperation(value = "批量设置商品当前的成本价")
+    @Operation(summary = "批量设置商品当前的成本价")
     public String batchSetMaterialCurrentUnitPrice(@RequestBody JSONObject jsonObject,
                                                HttpServletRequest request)throws Exception {
         String ids = jsonObject.getString("ids");
@@ -853,7 +853,7 @@ public class MaterialController extends BaseController {
      * @throws Exception
      */
     @PostMapping(value = "/batchUpdate")
-    @ApiOperation(value = "批量更新商品信息")
+    @Operation(summary = "批量更新商品信息")
     public String batchUpdate(@RequestBody JSONObject jsonObject,
                               HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -870,7 +870,7 @@ public class MaterialController extends BaseController {
      * @param jsonObject
      */
     @PostMapping(value = "/changeNameToPinYin")
-    @ApiOperation(value = "转换名称为拼音")
+    @Operation(summary = "转换名称为拼音")
     public BaseResponseInfo changeNameToPinYin(@RequestBody JSONObject jsonObject)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -892,7 +892,7 @@ public class MaterialController extends BaseController {
      * @return
      */
     @GetMapping(value = "/getMaterialDepotStock")
-    @ApiOperation(value = "根据仓库和商品查询库存分布情况")
+    @Operation(summary = "根据仓库和商品查询库存分布情况")
     public TableDataInfo getMaterialDepotStock(
             @RequestParam(value = "depotIds",required = false) String depotIds,
             @RequestParam("materialId") Long mId,

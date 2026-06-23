@@ -1,6 +1,6 @@
 package com.jsh.erp.datasource.entities;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 
 import java.math.BigDecimal;
 import java.util.Map;

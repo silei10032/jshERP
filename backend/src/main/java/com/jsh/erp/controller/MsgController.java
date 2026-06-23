@@ -1,6 +1,6 @@
 package com.jsh.erp.controller;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.jsh.erp.base.BaseController;
 import com.jsh.erp.base.TableDataInfo;
 import com.jsh.erp.datasource.entities.Msg;
@@ -10,8 +10,8 @@ import com.jsh.erp.utils.BaseResponseInfo;
 import com.jsh.erp.utils.Constants;
 import com.jsh.erp.utils.ErpInfo;
 import com.jsh.erp.utils.StringUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +30,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/msg")
-@Api(tags = {"消息管理"})
+@Tag(name = "消息管理")
 public class MsgController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(MsgController.class);
 
@@ -38,7 +38,7 @@ public class MsgController extends BaseController {
     private MsgService msgService;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "根据id获取信息")
+    @Operation(summary = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         Msg msg = msgService.getMsg(id);
@@ -52,7 +52,7 @@ public class MsgController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "获取信息列表")
+    @Operation(summary = "获取信息列表")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String name = StringUtil.getInfo(search, "name");
@@ -61,7 +61,7 @@ public class MsgController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "新增")
+    @Operation(summary = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = msgService.insertMsg(obj, request);
@@ -69,7 +69,7 @@ public class MsgController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "修改")
+    @Operation(summary = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = msgService.updateMsg(obj, request);
@@ -77,7 +77,7 @@ public class MsgController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除")
+    @Operation(summary = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = msgService.deleteMsg(id, request);
@@ -85,7 +85,7 @@ public class MsgController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "批量删除")
+    @Operation(summary = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = msgService.batchDeleteMsg(ids, request);
@@ -93,7 +93,7 @@ public class MsgController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "检查名称是否存在")
+    @Operation(summary = "检查名称是否存在")
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -114,7 +114,7 @@ public class MsgController extends BaseController {
      * @throws Exception
      */
     @GetMapping("/getMsgByStatus")
-    @ApiOperation(value = "根据状态查询消息")
+    @Operation(summary = "根据状态查询消息")
     public BaseResponseInfo getMsgByStatus(@RequestParam("status") String status,
                                            HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -138,7 +138,7 @@ public class MsgController extends BaseController {
      * @throws Exception
      */
     @PostMapping("/batchUpdateStatus")
-    @ApiOperation(value = "批量更新状态")
+    @Operation(summary = "批量更新状态")
     public BaseResponseInfo batchUpdateStatus(@RequestBody JSONObject jsonObject,
                                               HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -164,7 +164,7 @@ public class MsgController extends BaseController {
      * @throws Exception
      */
     @GetMapping("/getMsgCountByStatus")
-    @ApiOperation(value = "根据状态查询数量")
+    @Operation(summary = "根据状态查询数量")
     public BaseResponseInfo getMsgCountByStatus(@RequestParam("status") String status,
                                                 HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -190,7 +190,7 @@ public class MsgController extends BaseController {
      * @throws Exception
      */
     @GetMapping("/getMsgCountByType")
-    @ApiOperation(value = "根据类型查询数量")
+    @Operation(summary = "根据类型查询数量")
     public BaseResponseInfo getMsgCountByType(@RequestParam("type") String type,
                                                 HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -215,7 +215,7 @@ public class MsgController extends BaseController {
      * @throws Exception
      */
     @PostMapping("/readAllMsg")
-    @ApiOperation(value = "全部设置未已读")
+    @Operation(summary = "全部设置未已读")
     public BaseResponseInfo readAllMsg(HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try {

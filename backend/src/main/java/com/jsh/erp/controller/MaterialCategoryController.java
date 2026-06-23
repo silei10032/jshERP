@@ -1,8 +1,8 @@
 package com.jsh.erp.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.jsh.erp.base.BaseController;
 import com.jsh.erp.base.TableDataInfo;
 import com.jsh.erp.datasource.entities.MaterialCategory;
@@ -12,8 +12,8 @@ import com.jsh.erp.utils.BaseResponseInfo;
 import com.jsh.erp.utils.Constants;
 import com.jsh.erp.utils.ErpInfo;
 import com.jsh.erp.utils.StringUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +32,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/materialCategory")
-@Api(tags = {"商品类别"})
+@Tag(name = "商品类别")
 public class MaterialCategoryController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(MaterialCategoryController.class);
 
@@ -40,7 +40,7 @@ public class MaterialCategoryController extends BaseController {
     private MaterialCategoryService materialCategoryService;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "根据id获取信息")
+    @Operation(summary = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         MaterialCategory materialCategory = materialCategoryService.getMaterialCategory(id);
@@ -54,7 +54,7 @@ public class MaterialCategoryController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "获取信息列表")
+    @Operation(summary = "获取信息列表")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String name = StringUtil.getInfo(search, "name");
@@ -64,7 +64,7 @@ public class MaterialCategoryController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "新增")
+    @Operation(summary = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = materialCategoryService.insertMaterialCategory(obj, request);
@@ -72,7 +72,7 @@ public class MaterialCategoryController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "修改")
+    @Operation(summary = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = materialCategoryService.updateMaterialCategory(obj, request);
@@ -80,7 +80,7 @@ public class MaterialCategoryController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除")
+    @Operation(summary = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = materialCategoryService.deleteMaterialCategory(id, request);
@@ -88,7 +88,7 @@ public class MaterialCategoryController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "批量删除")
+    @Operation(summary = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = materialCategoryService.batchDeleteMaterialCategory(ids, request);
@@ -96,7 +96,7 @@ public class MaterialCategoryController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "检查名称是否存在")
+    @Operation(summary = "检查名称是否存在")
     public String checkIsNameExist(@RequestParam Long id,
                                    @RequestParam(value ="name", required = false) String name,
                                    @RequestParam(value ="parentId", required = false) Long parentId,
@@ -119,7 +119,7 @@ public class MaterialCategoryController extends BaseController {
      * @throws Exception
      */
     @GetMapping(value = "/getAllList")
-    @ApiOperation(value = "获取全部商品类别")
+    @Operation(summary = "获取全部商品类别")
     public BaseResponseInfo getAllList(@RequestParam("parentId") Long parentId, HttpServletRequest request) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -141,7 +141,7 @@ public class MaterialCategoryController extends BaseController {
      * @return
      */
     @GetMapping(value = "/findById")
-    @ApiOperation(value = "根据id来查询商品名称")
+    @Operation(summary = "根据id来查询商品名称")
     public BaseResponseInfo findById(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -173,10 +173,10 @@ public class MaterialCategoryController extends BaseController {
     /**
      * 获取商品类别树数据
      * @Param:
-     * @return com.alibaba.fastjson.JSONArray
+     * @return com.alibaba.fastjson2.JSONArray
      */
     @RequestMapping(value = "/getMaterialCategoryTree")
-    @ApiOperation(value = "获取商品类别树数据")
+    @Operation(summary = "获取商品类别树数据")
     public JSONArray getMaterialCategoryTree(@RequestParam("id") Long id) throws Exception{
        JSONArray arr=new JSONArray();
        List<TreeNode> materialCategoryTree = materialCategoryService.getMaterialCategoryTree(id);

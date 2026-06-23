@@ -9,7 +9,7 @@ import com.jsh.erp.service.SysDictTypeService;
 import com.jsh.erp.service.UserService;
 import com.jsh.erp.utils.Constants;
 import com.jsh.erp.utils.StringUtil;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,7 +41,7 @@ public class SysDictDataController extends BaseController {
     private UserService userService;
 
     @GetMapping("/list")
-    @ApiOperation(value = "查询列表")
+    @Operation(summary = "查询列表")
     public TableDataInfo list(@RequestParam(value = Constants.SEARCH, required = false) String search) {
         SysDictData dictData = new SysDictData();
         dictData.setDictType(StringUtil.getInfo(search, "dictType"));
@@ -55,7 +55,7 @@ public class SysDictDataController extends BaseController {
      * 查询字典数据详细
      */
     @GetMapping(value = "/{dictCode}")
-    @ApiOperation(value = "查询字典数据详细")
+    @Operation(summary = "查询字典数据详细")
     public AjaxResult getInfo(@PathVariable Long dictCode) {
         return success(dictDataService.selectDictDataById(dictCode));
     }
@@ -64,7 +64,7 @@ public class SysDictDataController extends BaseController {
      * 根据字典类型查询字典数据信息
      */
     @GetMapping(value = "/type/{dictType}")
-    @ApiOperation(value = "根据字典类型查询字典数据信息")
+    @Operation(summary = "根据字典类型查询字典数据信息")
     public AjaxResult dictType(@PathVariable String dictType) {
         List<SysDictData> data = dictTypeService.selectDictDataByType(dictType);
         if (StringUtil.isNull(data))
@@ -77,7 +77,7 @@ public class SysDictDataController extends BaseController {
     /**
      * 新增字典数据
      */
-    @ApiOperation(value = "新增字典数据")
+    @Operation(summary = "新增字典数据")
     @PostMapping(value = "/add")
     public String add(@Validated @RequestBody SysDictData dict) throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -88,7 +88,7 @@ public class SysDictDataController extends BaseController {
     /**
      * 修改保存字典数据
      */
-    @ApiOperation(value = "修改保存字典数据")
+    @Operation(summary = "修改保存字典数据")
     @PutMapping(value = "/update")
     public String edit(@Validated @RequestBody SysDictData dict) throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -100,14 +100,14 @@ public class SysDictDataController extends BaseController {
      * 删除字典数据
      */
     @DeleteMapping("/{dictCodes}")
-    @ApiOperation(value = "删除字典数据")
+    @Operation(summary = "删除字典数据")
     public AjaxResult remove(@PathVariable Long[] dictCodes) {
         dictDataService.deleteDictDataByIds(dictCodes);
         return success();
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除")
+    @Operation(summary = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = dictDataService.deleteDictData(id, request);
@@ -115,7 +115,7 @@ public class SysDictDataController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "批量删除")
+    @Operation(summary = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = dictDataService.batchDeleteDictData(ids, request);

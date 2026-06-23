@@ -1,7 +1,7 @@
 package com.jsh.erp.utils;
 
-import com.alibaba.fastjson.annotation.JSONCreator;
-import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson2.annotation.JSONCreator;
+import com.alibaba.fastjson2.annotation.JSONField;
 
 /**
  * @author jishenghua qq752718920  2018-10-7 15:26:27

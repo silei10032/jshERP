@@ -1,15 +1,15 @@
 package com.jsh.erp.controller;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.jsh.erp.datasource.entities.MaterialExtend;
 import com.jsh.erp.datasource.vo.MaterialExtendVo4List;
 import com.jsh.erp.service.MaterialExtendService;
 import com.jsh.erp.utils.BaseResponseInfo;
 import com.jsh.erp.utils.ErpInfo;
 import com.jsh.erp.utils.StringUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -29,14 +29,14 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/materialsExtend")
-@Api(tags = {"商品价格扩展"})
+@Tag(name = "商品价格扩展")
 public class MaterialExtendController {
     private Logger logger = LoggerFactory.getLogger(MaterialExtendController.class);
     @Resource
     private MaterialExtendService materialExtendService;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "根据id获取信息")
+    @Operation(summary = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         MaterialExtend materialExtend = materialExtendService.getMaterialExtend(id);
@@ -50,7 +50,7 @@ public class MaterialExtendController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "新增")
+    @Operation(summary = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = materialExtendService.insertMaterialExtend(obj, request);
@@ -58,7 +58,7 @@ public class MaterialExtendController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "修改")
+    @Operation(summary = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = materialExtendService.updateMaterialExtend(obj, request);
@@ -66,7 +66,7 @@ public class MaterialExtendController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除")
+    @Operation(summary = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = materialExtendService.deleteMaterialExtend(id, request);
@@ -74,7 +74,7 @@ public class MaterialExtendController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "批量删除")
+    @Operation(summary = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = materialExtendService.batchDeleteMaterialExtendByIds(ids, request);
@@ -82,7 +82,7 @@ public class MaterialExtendController {
     }
 
     @GetMapping(value = "/getDetailList")
-    @ApiOperation(value = "价格信息列表")
+    @Operation(summary = "价格信息列表")
     public BaseResponseInfo getDetailList(@RequestParam("materialId") Long materialId,
                                           HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -130,7 +130,7 @@ public class MaterialExtendController {
      * @throws Exception
      */
     @GetMapping(value = "/getInfoByBarCode")
-    @ApiOperation(value = "根据条码查询商品信息")
+    @Operation(summary = "根据条码查询商品信息")
     public BaseResponseInfo getInfoByBarCode(@RequestParam("barCode") String barCode,
                                           HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -156,7 +156,7 @@ public class MaterialExtendController {
      * @throws Exception
      */
     @GetMapping(value = "/checkIsBarCodeExist")
-    @ApiOperation(value = "校验条码是否存在")
+    @Operation(summary = "校验条码是否存在")
     public BaseResponseInfo checkIsBarCodeExist(@RequestParam("id") Long id,
                                                 @RequestParam("barCode") String barCode,
                                              HttpServletRequest request)throws Exception {

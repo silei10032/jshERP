@@ -1,7 +1,7 @@
 package com.jsh.erp.controller;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.jsh.erp.base.BaseController;
 import com.jsh.erp.base.TableDataInfo;
 import com.jsh.erp.datasource.entities.Person;
@@ -10,8 +10,8 @@ import com.jsh.erp.utils.BaseResponseInfo;
 import com.jsh.erp.utils.Constants;
 import com.jsh.erp.utils.ErpInfo;
 import com.jsh.erp.utils.StringUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +30,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/person")
-@Api(tags = {"经手人管理"})
+@Tag(name = "经手人管理")
 public class PersonController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(PersonController.class);
 
@@ -39,7 +39,7 @@ public class PersonController extends BaseController {
 
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "根据id获取信息")
+    @Operation(summary = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         Person person = personService.getPerson(id);
@@ -53,7 +53,7 @@ public class PersonController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "获取信息列表")
+    @Operation(summary = "获取信息列表")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String name = StringUtil.getInfo(search, "name");
@@ -63,7 +63,7 @@ public class PersonController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "新增")
+    @Operation(summary = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = personService.insertPerson(obj, request);
@@ -71,7 +71,7 @@ public class PersonController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "修改")
+    @Operation(summary = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = personService.updatePerson(obj, request);
@@ -79,7 +79,7 @@ public class PersonController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除")
+    @Operation(summary = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = personService.deletePerson(id, request);
@@ -87,7 +87,7 @@ public class PersonController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "批量删除")
+    @Operation(summary = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = personService.batchDeletePerson(ids, request);
@@ -95,7 +95,7 @@ public class PersonController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "检查名称是否存在")
+    @Operation(summary = "检查名称是否存在")
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -115,7 +115,7 @@ public class PersonController extends BaseController {
      * @throws Exception
      */
     @GetMapping(value = "/getAllList")
-    @ApiOperation(value = "全部数据列表")
+    @Operation(summary = "全部数据列表")
     public BaseResponseInfo getAllList(HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         Map<String, Object> map = new HashMap<String, Object>();
@@ -139,7 +139,7 @@ public class PersonController extends BaseController {
      * @return
      */
     @GetMapping(value = "/getPersonByIds")
-    @ApiOperation(value = "根据Id获取经手人信息")
+    @Operation(summary = "根据Id获取经手人信息")
     public BaseResponseInfo getPersonByIds(@RequestParam("personIds") String personIds,
                                            HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -165,7 +165,7 @@ public class PersonController extends BaseController {
      * @return
      */
     @GetMapping(value = "/getPersonByType")
-    @ApiOperation(value = "根据类型获取经手人信息")
+    @Operation(summary = "根据类型获取经手人信息")
     public BaseResponseInfo getPersonByType(@RequestParam("type") String type,
                                             HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -190,7 +190,7 @@ public class PersonController extends BaseController {
      * @return
      */
     @GetMapping(value = "/getPersonByNumType")
-    @ApiOperation(value = "根据类型获取经手人信息1-销售员，2-仓管员，3-财务员")
+    @Operation(summary = "根据类型获取经手人信息1-销售员，2-仓管员，3-财务员")
     public JSONArray getPersonByNumType(@RequestParam("type") String typeNum,
                                         HttpServletRequest request)throws Exception {
         JSONArray dataArray = new JSONArray();
@@ -225,7 +225,7 @@ public class PersonController extends BaseController {
      * @return
      */
     @PostMapping(value = "/batchSetStatus")
-    @ApiOperation(value = "批量设置状态")
+    @Operation(summary = "批量设置状态")
     public String batchSetStatus(@RequestBody JSONObject jsonObject,
                                  HttpServletRequest request)throws Exception {
         Boolean status = jsonObject.getBoolean("status");

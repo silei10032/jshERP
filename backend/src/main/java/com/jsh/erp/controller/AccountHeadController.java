@@ -1,6 +1,6 @@
 package com.jsh.erp.controller;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.jsh.erp.base.BaseController;
 import com.jsh.erp.base.TableDataInfo;
 import com.jsh.erp.constants.ExceptionConstants;
@@ -12,8 +12,8 @@ import com.jsh.erp.utils.BaseResponseInfo;
 import com.jsh.erp.utils.Constants;
 import com.jsh.erp.utils.ErpInfo;
 import com.jsh.erp.utils.StringUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +32,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/accountHead")
-@Api(tags = {"财务管理"})
+@Tag(name = "财务管理")
 public class AccountHeadController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(AccountHeadController.class);
 
@@ -40,7 +40,7 @@ public class AccountHeadController extends BaseController {
     private AccountHeadService accountHeadService;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "根据id获取信息")
+    @Operation(summary = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         AccountHead accountHead = accountHeadService.getAccountHead(id);
@@ -54,7 +54,7 @@ public class AccountHeadController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "获取信息列表")
+    @Operation(summary = "获取信息列表")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String type = StringUtil.getInfo(search, "type");
@@ -75,7 +75,7 @@ public class AccountHeadController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除")
+    @Operation(summary = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = accountHeadService.deleteAccountHead(id, request);
@@ -83,7 +83,7 @@ public class AccountHeadController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "批量删除")
+    @Operation(summary = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = accountHeadService.batchDeleteAccountHead(ids, request);
@@ -97,7 +97,7 @@ public class AccountHeadController extends BaseController {
      * @return
      */
     @PostMapping(value = "/batchSetStatus")
-    @ApiOperation(value = "批量设置状态-审核或者反审核")
+    @Operation(summary = "批量设置状态-审核或者反审核")
     public String batchSetStatus(@RequestBody JSONObject jsonObject,
                                  HttpServletRequest request) throws Exception{
         Map<String, Object> objectMap = new HashMap<>();
@@ -119,7 +119,7 @@ public class AccountHeadController extends BaseController {
      * @throws Exception
      */
     @PostMapping(value = "/addAccountHeadAndDetail")
-    @ApiOperation(value = "新增财务主表及财务子表信息")
+    @Operation(summary = "新增财务主表及财务子表信息")
     public Object addAccountHeadAndDetail(@RequestBody AccountHeadVo4Body body, HttpServletRequest request) throws  Exception{
         JSONObject result = ExceptionConstants.standardSuccess();
         String beanJson = body.getInfo();
@@ -136,7 +136,7 @@ public class AccountHeadController extends BaseController {
      * @throws Exception
      */
     @PutMapping(value = "/updateAccountHeadAndDetail")
-    @ApiOperation(value = "更新财务主表及财务子表信息")
+    @Operation(summary = "更新财务主表及财务子表信息")
     public Object updateAccountHeadAndDetail(@RequestBody AccountHeadVo4Body body, HttpServletRequest request) throws Exception{
         JSONObject result = ExceptionConstants.standardSuccess();
         String beanJson = body.getInfo();
@@ -152,7 +152,7 @@ public class AccountHeadController extends BaseController {
      * @return
      */
     @GetMapping(value = "/getDetailByNumber")
-    @ApiOperation(value = "根据编号查询单据信息")
+    @Operation(summary = "根据编号查询单据信息")
     public BaseResponseInfo getDetailByNumber(@RequestParam("billNo") String billNo,
                                               HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -179,7 +179,7 @@ public class AccountHeadController extends BaseController {
      * @return
      */
     @GetMapping(value = "/getFinancialBillNoByBillId")
-    @ApiOperation(value = "根据编号查询单据信息")
+    @Operation(summary = "根据编号查询单据信息")
     public BaseResponseInfo getFinancialBillNoByBillId(@RequestParam("billId") Long billId,
                                               HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();

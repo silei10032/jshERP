@@ -1,8 +1,8 @@
 package com.jsh.erp.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.datasource.entities.Organization;
 import com.jsh.erp.datasource.vo.TreeNode;
@@ -10,8 +10,8 @@ import com.jsh.erp.service.OrganizationService;
 import com.jsh.erp.service.UserService;
 import com.jsh.erp.utils.BaseResponseInfo;
 import com.jsh.erp.utils.ErpInfo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +31,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/organization")
-@Api(tags = {"部门管理"})
+@Tag(name = "部门管理")
 public class OrganizationController {
     private Logger logger = LoggerFactory.getLogger(OrganizationController.class);
 
@@ -42,7 +42,7 @@ public class OrganizationController {
     private UserService userService;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "根据id获取信息")
+    @Operation(summary = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         Organization organization = organizationService.getOrganization(id);
@@ -56,7 +56,7 @@ public class OrganizationController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "新增")
+    @Operation(summary = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = organizationService.insertOrganization(obj, request);
@@ -64,7 +64,7 @@ public class OrganizationController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "修改")
+    @Operation(summary = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = organizationService.updateOrganization(obj, request);
@@ -72,7 +72,7 @@ public class OrganizationController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除")
+    @Operation(summary = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = organizationService.deleteOrganization(id, request);
@@ -80,7 +80,7 @@ public class OrganizationController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "批量删除")
+    @Operation(summary = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = organizationService.batchDeleteOrganization(ids, request);
@@ -88,7 +88,7 @@ public class OrganizationController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "检查名称是否存在")
+    @Operation(summary = "检查名称是否存在")
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -108,7 +108,7 @@ public class OrganizationController {
      * @return
      */
     @GetMapping(value = "/findById")
-    @ApiOperation(value = "根据id来查询部门信息")
+    @Operation(summary = "根据id来查询部门信息")
     public BaseResponseInfo findById(@RequestParam("id") Long id, HttpServletRequest request) throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -146,7 +146,7 @@ public class OrganizationController {
      * @throws Exception
      */
     @GetMapping(value = "/getOrganizationTree")
-    @ApiOperation(value = "获取部门树数据")
+    @Operation(summary = "获取部门树数据")
     public JSONArray getOrganizationTree(@RequestParam("id") Long id) throws Exception{
        JSONArray arr=new JSONArray();
        List<TreeNode> organizationTree= organizationService.getOrganizationTree(id);
@@ -167,7 +167,7 @@ public class OrganizationController {
      * @throws Exception
      */
     @GetMapping(value = "/getAllOrganizationTreeByUser")
-    @ApiOperation(value = "根据用户获取全部部门树")
+    @Operation(summary = "根据用户获取全部部门树")
     public JSONArray getAllOrganizationTreeByUser(HttpServletRequest request) throws Exception{
         JSONArray arr = new JSONArray();
         Long userId = userService.getUserId(request);

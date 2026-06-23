@@ -1,6 +1,6 @@
 package com.jsh.erp.service;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.jsh.erp.base.PageDomain;
 import com.jsh.erp.base.TableSupport;
 import com.jsh.erp.constants.BusinessConstants;

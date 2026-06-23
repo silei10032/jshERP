@@ -1,7 +1,7 @@
 package com.jsh.erp.controller;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.jsh.erp.base.BaseController;
 import com.jsh.erp.base.TableDataInfo;
 import com.jsh.erp.datasource.entities.Supplier;
@@ -13,8 +13,8 @@ import com.jsh.erp.service.SystemConfigService;
 import com.jsh.erp.service.UserService;
 import com.jsh.erp.service.UserBusinessService;
 import com.jsh.erp.utils.*;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +38,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/supplier")
-@Api(tags = {"商家管理"})
+@Tag(name = "商家管理")
 public class SupplierController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(SupplierController.class);
 
@@ -55,7 +55,7 @@ public class SupplierController extends BaseController {
     private UserService userService;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "根据id获取信息")
+    @Operation(summary = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         Supplier supplier = supplierService.getSupplier(id);
@@ -69,7 +69,7 @@ public class SupplierController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "获取信息列表")
+    @Operation(summary = "获取信息列表")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String supplier = StringUtil.getInfo(search, "supplier");
@@ -82,7 +82,7 @@ public class SupplierController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "新增")
+    @Operation(summary = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = supplierService.insertSupplier(obj, request);
@@ -90,7 +90,7 @@ public class SupplierController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "修改")
+    @Operation(summary = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = supplierService.updateSupplier(obj, request);
@@ -98,7 +98,7 @@ public class SupplierController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除")
+    @Operation(summary = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = supplierService.deleteSupplier(id, request);
@@ -106,7 +106,7 @@ public class SupplierController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "批量删除")
+    @Operation(summary = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = supplierService.batchDeleteSupplier(ids, request);
@@ -114,7 +114,7 @@ public class SupplierController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "检查名称是否存在")
+    @Operation(summary = "检查名称是否存在")
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -128,7 +128,7 @@ public class SupplierController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameAndTypeExist")
-    @ApiOperation(value = "检查名称和类型是否存在")
+    @Operation(summary = "检查名称和类型是否存在")
     public String checkIsNameAndTypeExist(@RequestParam Long id,
                                           @RequestParam(value ="name", required = false) String name,
                                           @RequestParam(value ="type") String type,
@@ -149,7 +149,7 @@ public class SupplierController extends BaseController {
      * @return
      */
     @PostMapping(value = "/findBySelect_cus")
-    @ApiOperation(value = "查找客户信息")
+    @Operation(summary = "查找客户信息")
     public JSONArray findBySelectCus(@RequestBody JSONObject jsonObject,
                                      HttpServletRequest request) {
         JSONArray arr = new JSONArray();
@@ -188,7 +188,7 @@ public class SupplierController extends BaseController {
      * @return
      */
     @PostMapping(value = "/findBySelect_sup")
-    @ApiOperation(value = "查找供应商信息")
+    @Operation(summary = "查找供应商信息")
     public JSONArray findBySelectSup(@RequestBody JSONObject jsonObject,
                                      HttpServletRequest request) throws Exception{
         JSONArray arr = new JSONArray();
@@ -220,7 +220,7 @@ public class SupplierController extends BaseController {
      * @return
      */
     @PostMapping(value = "/findBySelect_organ")
-    @ApiOperation(value = "查找往来单位，含供应商和客户信息")
+    @Operation(summary = "查找往来单位，含供应商和客户信息")
     public JSONArray findBySelectOrgan(@RequestBody JSONObject jsonObject,
                                        HttpServletRequest request) throws Exception{
         JSONArray arr = new JSONArray();
@@ -269,7 +269,7 @@ public class SupplierController extends BaseController {
      * @return
      */
     @PostMapping(value = "/findBySelect_retail")
-    @ApiOperation(value = "查找会员信息")
+    @Operation(summary = "查找会员信息")
     public JSONArray findBySelectRetail(@RequestBody JSONObject jsonObject,
                                         HttpServletRequest request)throws Exception {
         JSONArray arr = new JSONArray();
@@ -303,7 +303,7 @@ public class SupplierController extends BaseController {
      * @return
      */
     @PostMapping(value = "/batchSetStatus")
-    @ApiOperation(value = "批量设置状态")
+    @Operation(summary = "批量设置状态")
     public String batchSetStatus(@RequestBody JSONObject jsonObject,
                                  HttpServletRequest request)throws Exception {
         Boolean status = jsonObject.getBoolean("status");
@@ -325,7 +325,7 @@ public class SupplierController extends BaseController {
      * @throws Exception
      */
     @GetMapping(value = "/getAllCustomer")
-    @ApiOperation(value = "获取全部客户信息")
+    @Operation(summary = "获取全部客户信息")
     public TableDataInfo getAllCustomer(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                         HttpServletRequest request)throws Exception {
         List<SupplierSimple> list = supplierService.getAllCustomer();
@@ -340,7 +340,7 @@ public class SupplierController extends BaseController {
      * @return
      */
     @GetMapping(value = "/getUserCustomerValue")
-    @ApiOperation(value = "获取用户对应客户的关系数组")
+    @Operation(summary = "获取用户对应客户的关系数组")
     public JSONObject getUserCustomerValue(@RequestParam("UBType") String type, @RequestParam("UBKeyId") String keyId,
                                            HttpServletRequest request) throws Exception{
         JSONObject obj = new JSONObject();
@@ -375,7 +375,7 @@ public class SupplierController extends BaseController {
      * @throws Exception
      */
     @GetMapping(value = "/getBeginNeedByOrganId")
-    @ApiOperation(value = "根据客户或供应商查询期初、期初已收等信息")
+    @Operation(summary = "根据客户或供应商查询期初、期初已收等信息")
     public BaseResponseInfo getBeginNeedByOrganId(@RequestParam("organId") Long organId,
                                         HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -399,7 +399,7 @@ public class SupplierController extends BaseController {
      * @return
      */
     @PostMapping(value = "/importVendor")
-    @ApiOperation(value = "导入供应商")
+    @Operation(summary = "导入供应商")
     public BaseResponseInfo importVendor(MultipartFile file,
                             HttpServletRequest request, HttpServletResponse response) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
@@ -427,7 +427,7 @@ public class SupplierController extends BaseController {
      * @return
      */
     @PostMapping(value = "/importCustomer")
-    @ApiOperation(value = "导入客户")
+    @Operation(summary = "导入客户")
     public BaseResponseInfo importCustomer(MultipartFile file,
                                         HttpServletRequest request, HttpServletResponse response) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
@@ -455,7 +455,7 @@ public class SupplierController extends BaseController {
      * @return
      */
     @PostMapping(value = "/importMember")
-    @ApiOperation(value = "导入会员")
+    @Operation(summary = "导入会员")
     public BaseResponseInfo importMember(MultipartFile file,
                                            HttpServletRequest request, HttpServletResponse response) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
@@ -508,7 +508,7 @@ public class SupplierController extends BaseController {
      * @throws Exception
      */
     @PostMapping(value = "/batchSetAdvanceIn")
-    @ApiOperation(value = "批量设置会员当前的预付款")
+    @Operation(summary = "批量设置会员当前的预付款")
     public String batchSetAdvanceIn(@RequestBody JSONObject jsonObject,
                                     HttpServletRequest request)throws Exception {
         String ids = jsonObject.getString("ids");
@@ -522,7 +522,7 @@ public class SupplierController extends BaseController {
     }
 
     @GetMapping(value = "/getInfoByName")
-    @ApiOperation(value = "根据名称获取信息")
+    @Operation(summary = "根据名称获取信息")
     public String getInfoByName(@RequestParam("name") String name,
                                 @RequestParam("type") String type,
                                 HttpServletRequest request) throws Exception {

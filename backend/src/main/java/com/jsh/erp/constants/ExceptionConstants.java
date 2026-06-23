@@ -1,6 +1,6 @@
 package com.jsh.erp.constants;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 
 public class ExceptionConstants {
     /**

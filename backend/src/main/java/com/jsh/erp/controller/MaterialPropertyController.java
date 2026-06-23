@@ -1,6 +1,6 @@
 package com.jsh.erp.controller;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.jsh.erp.base.BaseController;
 import com.jsh.erp.base.TableDataInfo;
 import com.jsh.erp.datasource.entities.MaterialProperty;
@@ -9,8 +9,8 @@ import com.jsh.erp.utils.BaseResponseInfo;
 import com.jsh.erp.utils.Constants;
 import com.jsh.erp.utils.ErpInfo;
 import com.jsh.erp.utils.StringUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +32,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/materialProperty")
-@Api(tags = {"商品扩展字段"})
+@Tag(name = "商品扩展字段")
 public class MaterialPropertyController extends BaseController {
 
     private Logger logger = LoggerFactory.getLogger(MaterialPropertyController.class);
@@ -41,7 +41,7 @@ public class MaterialPropertyController extends BaseController {
     private MaterialPropertyService materialPropertyService;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "根据id获取信息")
+    @Operation(summary = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         MaterialProperty materialProperty = materialPropertyService.getMaterialProperty(id);
@@ -55,7 +55,7 @@ public class MaterialPropertyController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "获取信息列表")
+    @Operation(summary = "获取信息列表")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String name = StringUtil.getInfo(search, "name");
@@ -64,7 +64,7 @@ public class MaterialPropertyController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "新增")
+    @Operation(summary = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = materialPropertyService.insertMaterialProperty(obj, request);
@@ -72,7 +72,7 @@ public class MaterialPropertyController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "修改")
+    @Operation(summary = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = materialPropertyService.updateMaterialProperty(obj, request);
@@ -80,7 +80,7 @@ public class MaterialPropertyController extends BaseController {
     }
 
     @PostMapping(value = "/addOrUpdate")
-    @ApiOperation(value = "新增或修改")
+    @Operation(summary = "新增或修改")
     public String addOrUpdate(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         String nativeName = obj.getString("nativeName");
@@ -97,7 +97,7 @@ public class MaterialPropertyController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除")
+    @Operation(summary = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = materialPropertyService.deleteMaterialProperty(id, request);
@@ -105,7 +105,7 @@ public class MaterialPropertyController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "批量删除")
+    @Operation(summary = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = materialPropertyService.batchDeleteMaterialProperty(ids, request);
@@ -113,7 +113,7 @@ public class MaterialPropertyController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "检查名称是否存在")
+    @Operation(summary = "检查名称是否存在")
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -127,7 +127,7 @@ public class MaterialPropertyController extends BaseController {
     }
 
     @GetMapping(value = "/getAllList")
-    @ApiOperation(value = "查询全部商品扩展字段信息")
+    @Operation(summary = "查询全部商品扩展字段信息")
     public BaseResponseInfo getAllList(HttpServletRequest request) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
         try {

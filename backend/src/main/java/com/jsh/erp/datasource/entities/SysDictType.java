@@ -1,7 +1,6 @@
 package com.jsh.erp.datasource.entities;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -12,24 +11,24 @@ import jakarta.validation.constraints.Size;
  *
  * @author jishenghua
  */
-@ApiModel(value = "SysDictType", description = "字典类型表 sys_dict_type")
+@Schema(name = "SysDictType", description = "字典类型表 sys_dict_type")
 public class SysDictType extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     /** 字典主键 */
-    @ApiModelProperty("字典主键")
+    @Schema(description = "字典主键")
     private Long dictId;
 
     /** 字典名称 */
-    @ApiModelProperty("字典名称")
+    @Schema(description = "字典名称")
     private String dictName;
 
     /** 字典类型 */
-    @ApiModelProperty("字典类型")
+    @Schema(description = "字典类型")
     private String dictType;
 
     /** 状态（0正常 1停用） */
-    @ApiModelProperty("状态（0正常 1停用）")
+    @Schema(description = "状态（0正常 1停用）")
     private String status;
 
     private String deleteFlag;

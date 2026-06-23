@@ -37,10 +37,11 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- fastjson 1.2.83 有 autoType CVE，升级到 fastjson2 现代版（阿里官方维护） -->
 		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>fastjson</artifactId>
-			<version>1.2.83</version>
+			<groupId>com.alibaba.fastjson2</groupId>
+			<artifactId>fastjson2</artifactId>
+			<version>2.0.53</version>
 		</dependency>
 		<!-- MySQL Connector/J 8.x 起 groupId/artifactId 改为 com.mysql:mysql-connector-j；版本由 Boot 管理 -->
 		<dependency>
@@ -84,13 +85,11 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-pool2</artifactId>
 		</dependency>
-		<!-- springfox 2.7 / swagger-bootstrap-ui 1.6 不兼容 Spring 6/Boot 3，已移除。
-		     暂保留 swagger-annotations（OpenAPI 2.0 注解、零依赖），让现有 @Api/@ApiOperation
-		     编译通过；Step 5 将连同 springdoc-openapi 一起换成 v3 注解。 -->
+		<!-- springdoc-openapi: Spring Boot 3 官方推荐的 OpenAPI 3 实现，替换原 springfox -->
 		<dependency>
-			<groupId>io.swagger</groupId>
-			<artifactId>swagger-annotations</artifactId>
-			<version>1.6.14</version>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.aliyun.oss</groupId>

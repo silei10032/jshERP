@@ -1,7 +1,7 @@
 package com.jsh.erp.controller;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.jsh.erp.base.BaseController;
 import com.jsh.erp.base.TableDataInfo;
 import com.jsh.erp.datasource.entities.Depot;
@@ -16,8 +16,8 @@ import com.jsh.erp.utils.BaseResponseInfo;
 import com.jsh.erp.utils.Constants;
 import com.jsh.erp.utils.ErpInfo;
 import com.jsh.erp.utils.StringUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +40,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/depot")
-@Api(tags = {"仓库管理"})
+@Tag(name = "仓库管理")
 public class DepotController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(DepotController.class);
 
@@ -57,7 +57,7 @@ public class DepotController extends BaseController {
     private UserService userService;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "根据id获取信息")
+    @Operation(summary = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         Depot depot = depotService.getDepot(id);
@@ -71,7 +71,7 @@ public class DepotController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "获取信息列表")
+    @Operation(summary = "获取信息列表")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String name = StringUtil.getInfo(search, "name");
@@ -82,7 +82,7 @@ public class DepotController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "新增")
+    @Operation(summary = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = depotService.insertDepot(obj, request);
@@ -90,7 +90,7 @@ public class DepotController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "修改")
+    @Operation(summary = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = depotService.updateDepot(obj, request);
@@ -98,7 +98,7 @@ public class DepotController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除")
+    @Operation(summary = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = depotService.deleteDepot(id, request);
@@ -106,7 +106,7 @@ public class DepotController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "批量删除")
+    @Operation(summary = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = depotService.batchDeleteDepot(ids, request);
@@ -114,7 +114,7 @@ public class DepotController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "检查名称是否存在")
+    @Operation(summary = "检查名称是否存在")
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -134,7 +134,7 @@ public class DepotController extends BaseController {
      * @throws Exception
      */
     @GetMapping(value = "/getAllList")
-    @ApiOperation(value = "仓库列表")
+    @Operation(summary = "仓库列表")
     public BaseResponseInfo getAllList(HttpServletRequest request) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -157,7 +157,7 @@ public class DepotController extends BaseController {
      * @return
      */
     @GetMapping(value = "/findUserDepot")
-    @ApiOperation(value = "用户对应仓库显示")
+    @Operation(summary = "用户对应仓库显示")
     public JSONArray findUserDepot(@RequestParam("UBType") String type, @RequestParam("UBKeyId") String keyId,
                                  HttpServletRequest request) throws Exception{
         JSONArray arr = new JSONArray();
@@ -204,7 +204,7 @@ public class DepotController extends BaseController {
      * @throws Exception
      */
     @GetMapping(value = "/findDepotByCurrentUser")
-    @ApiOperation(value = "获取当前用户拥有权限的仓库列表")
+    @Operation(summary = "获取当前用户拥有权限的仓库列表")
     public BaseResponseInfo findDepotByCurrentUser(HttpServletRequest request) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -227,7 +227,7 @@ public class DepotController extends BaseController {
      * @throws Exception
      */
     @PostMapping(value = "/updateIsDefault")
-    @ApiOperation(value = "更新默认仓库")
+    @Operation(summary = "更新默认仓库")
     public String updateIsDefault(@RequestBody JSONObject object,
                                        HttpServletRequest request) throws Exception{
         Long depotId = object.getLong("id");
@@ -247,7 +247,7 @@ public class DepotController extends BaseController {
      * @return
      */
     @GetMapping(value = "/getAllListWithStock")
-    @ApiOperation(value = "仓库列表-带库存")
+    @Operation(summary = "仓库列表-带库存")
     public BaseResponseInfo getAllList(@RequestParam("mId") Long mId,
                                        HttpServletRequest request) {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -289,7 +289,7 @@ public class DepotController extends BaseController {
      * @return
      */
     @PostMapping(value = "/batchSetStatus")
-    @ApiOperation(value = "批量设置状态")
+    @Operation(summary = "批量设置状态")
     public String batchSetStatus(@RequestBody JSONObject jsonObject,
                                  HttpServletRequest request)throws Exception {
         Boolean status = jsonObject.getBoolean("status");
