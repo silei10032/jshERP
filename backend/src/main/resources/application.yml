@@ -27,6 +27,10 @@ spring:
       # 文件上传限制 (byte)
       max-file-size: 10485760
       max-request-size: 10485760
+  # springfox 2.7.0 不兼容 Boot 2.6+ 默认的 PathPatternParser，临时回退到 AntPathMatcher；Step 6 换 springdoc 后删除
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
 
 # mybatis-plus 配置
 mybatis-plus:
