@@ -16,10 +16,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.mail.*;
-import javax.mail.internet.*;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.mail.*;
+import jakarta.mail.internet.*;
 import java.util.List;
 import java.util.Properties;
 
