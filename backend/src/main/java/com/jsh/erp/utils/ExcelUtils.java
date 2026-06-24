@@ -36,9 +36,24 @@ public class ExcelUtils {
     /** 读取后的工作表，包装 EasyExcel 同步读结果，提供索引式访问 */
     public static class SheetRows {
         private final List<Map<Integer, String>> rows;
+        /** 整表列数缓存：max(colIdx)+1，模拟原 jxl sheet.getColumns() 语义 */
+        private final int sheetColumnCount;
 
         public SheetRows(List<Map<Integer, String>> rows) {
             this.rows = rows;
+            int maxCol = -1;
+            if (rows != null) {
+                for (Map<Integer, String> row : rows) {
+                    if (row != null) {
+                        for (Integer k : row.keySet()) {
+                            if (k != null && k > maxCol) {
+                                maxCol = k;
+                            }
+                        }
+                    }
+                }
+            }
+            this.sheetColumnCount = maxCol + 1;
         }
 
         public int rowCount() {
@@ -53,12 +68,9 @@ public class ExcelUtils {
             return row == null ? null : row.get(colIdx);
         }
 
-        public int columnCountOf(int rowIdx) {
-            if (rows == null || rowIdx >= rows.size()) {
-                return 0;
-            }
-            Map<Integer, String> row = rows.get(rowIdx);
-            return row == null ? 0 : row.size();
+        /** 整表列数（max colIdx + 1），等价原 jxl sheet.getColumns() */
+        public int sheetColumnCount() {
+            return sheetColumnCount;
         }
     }
 
@@ -144,20 +156,21 @@ public class ExcelUtils {
         }
     }
 
-    /** 真实行数：从首行往后，扣除全部列均为空白的行 */
+    /** 真实行数：从首行往后，扣除全部列均为空白的行。
+     *  列数用整表 sheetColumnCount() 而非单行非空 cell 数，保持原 jxl 语义 */
     public static int getRightRows(SheetRows src) {
         int total = src.rowCount();
+        int sheetCols = src.sheetColumnCount();
         int rightRows = total;
         for (int i = 1; i < total; i++) {
-            int cols = src.columnCountOf(i);
             int nullCellNum = 0;
-            for (int j = 0; j < cols; j++) {
+            for (int j = 0; j < sheetCols; j++) {
                 String val = src.getString(i, j);
                 if (StringUtils.isEmpty(val == null ? null : val.trim())) {
                     nullCellNum++;
                 }
             }
-            if (cols == 0 || nullCellNum >= cols) {
+            if (sheetCols == 0 || nullCellNum >= sheetCols) {
                 rightRows--;
             }
         }

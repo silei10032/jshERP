@@ -10,7 +10,7 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
 import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Configuration;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Set;
@@ -22,7 +22,7 @@ import java.util.Set;
  * 3.5 改为 MybatisPlusInterceptor + TenantLineInnerInterceptor + 在 mapper 方法上
  * 加 @InterceptorIgnore(tenantLine="true") 跳过个别查询。
  */
-@Service
+@Configuration
 public class TenantConfig {
 
     /** 全租户共享的表名白名单，对这些表不注入 tenant_id 过滤 */

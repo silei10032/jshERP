@@ -16,7 +16,6 @@
       <a-button v-if="checkFlag && isCanCheck" :loading="confirmLoading" @click="handleOkAndCheck">保存并审核</a-button>
       <a-button type="primary" :loading="confirmLoading" @click="handleOkOnly">保存（Ctrl+S）</a-button>
       <!--发起多级审核-->
-      <a-button v-if="!checkFlag" @click="handleWorkflow()" type="primary">提交流程</a-button>
     </template>
     <a-spin :spinning="confirmLoading">
       <a-form :form="form">
@@ -108,13 +107,11 @@
       </a-form>
     </a-spin>
     <person-modal ref="personModalForm" @ok="personModalFormOk"></person-modal>
-    <workflow-iframe ref="modalWorkflow" @ok="workflowModalFormOk"></workflow-iframe>
   </j-modal>
 </template>
 <script>
   import pick from 'lodash.pick'
   import PersonModal from '../../system/modules/PersonModal'
-  import WorkflowIframe from '@/components/tools/WorkflowIframe'
   import { FormTypes } from '@/utils/JEditableTableUtil'
   import { JEditableTableMixin } from '@/mixins/JEditableTableMixin'
   import { FinancialModalMixin } from '../mixins/FinancialModalMixin'
@@ -125,7 +122,6 @@
     mixins: [JEditableTableMixin, FinancialModalMixin],
     components: {
       PersonModal,
-      WorkflowIframe,
       JUpload,
       JDate,
       VNodes: {

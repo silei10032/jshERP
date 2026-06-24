@@ -570,11 +570,11 @@ public class MaterialService {
         BaseResponseInfo info = new BaseResponseInfo();
         try {
             Long beginTime = System.currentTimeMillis();
-            //文件扩展名只能为xls
+            // 文件扩展名仅接受 xls / xlsx
             String fileName = file.getOriginalFilename();
             if(StringUtil.isNotEmpty(fileName)) {
-                String fileExt = fileName.substring(fileName.lastIndexOf(".")+1);
-                if(!"xls".equals(fileExt)) {
+                String fileExt = fileName.substring(fileName.lastIndexOf(".")+1).toLowerCase();
+                if(!"xls".equals(fileExt) && !"xlsx".equals(fileExt)) {
                     throw new BusinessRunTimeException(ExceptionConstants.FILE_EXTENSION_ERROR_CODE,
                             ExceptionConstants.FILE_EXTENSION_ERROR_MSG);
                 }
@@ -913,9 +913,10 @@ public class MaterialService {
      */
     private Map<Long, BigDecimal> getStockMapCache(ExcelUtils.SheetRows src, int depotCount, Map<String, Long> depotMap, int i) throws Exception {
         Map<Long, BigDecimal> stockMap = new HashMap<>();
+        int sheetCols = src.sheetColumnCount();
         for(int j = 1; j<= depotCount; j++) {
             int col = 26 + j;
-            if(col < src.columnCountOf(1)){
+            if(col < sheetCols){
                 String depotName = ExcelUtils.getContent(src, 1, col); //获取仓库名称
                 if(StringUtil.isNotEmpty(depotName)) {
                     Long depotId = depotMap.get(depotName);

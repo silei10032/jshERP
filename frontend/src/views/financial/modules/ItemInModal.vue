@@ -16,7 +16,6 @@
       <a-button v-if="checkFlag && isCanCheck" :loading="confirmLoading" @click="handleOkAndCheck">保存并审核</a-button>
       <a-button type="primary" :loading="confirmLoading" @click="handleOkOnly">保存（Ctrl+S）</a-button>
       <!--发起多级审核-->
-      <a-button v-if="!checkFlag" @click="handleWorkflow()" type="primary">提交流程</a-button>
     </template>
     <a-spin :spinning="confirmLoading">
       <a-form :form="form">
@@ -126,7 +125,6 @@
     </a-spin>
     <account-modal ref="accountModalForm" @ok="accountModalFormOk"></account-modal>
     <person-modal ref="personModalForm" @ok="personModalFormOk"></person-modal>
-    <workflow-iframe ref="modalWorkflow" @ok="workflowModalFormOk"></workflow-iframe>
     <in-out-item-modal ref="inOutItemModalForm" @ok="inOutItemModalFormOk('in')"></in-out-item-modal>
   </j-modal>
 </template>
@@ -134,7 +132,6 @@
   import pick from 'lodash.pick'
   import AccountModal from '../../system/modules/AccountModal'
   import PersonModal from '../../system/modules/PersonModal'
-  import WorkflowIframe from '@/components/tools/WorkflowIframe'
   import InOutItemModal from '../../system/modules/InOutItemModal'
   import { FormTypes } from '@/utils/JEditableTableUtil'
   import { JEditableTableMixin } from '@/mixins/JEditableTableMixin'
@@ -147,7 +144,6 @@
     components: {
       AccountModal,
       PersonModal,
-      WorkflowIframe,
       InOutItemModal,
       JUpload,
       JDate,

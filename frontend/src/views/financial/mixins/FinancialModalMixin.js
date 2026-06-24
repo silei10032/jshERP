@@ -284,9 +284,6 @@ export const FinancialModalMixin = {
     inOutItemModalFormOk(type) {
       this.initInOutItem(type)
     },
-    workflowModalFormOk() {
-      this.close()
-    },
     waitNeedListOk(organType, organId, selectBillRows) {
       if(organId) {
         this.form.setFieldsValue({'organId': organId})
@@ -429,20 +426,6 @@ export const FinancialModalMixin = {
     handleOkOnly() {
       this.billStatus = '0'
       this.handleOk()
-    },
-    //发起流程
-    handleWorkflow() {
-      if(this.model && this.model.billNo) {
-        getPlatformConfigByKey({ "platformKey": "send_workflow_url" }).then((res) => {
-          if (res && res.code === 200) {
-            let sendWorkflowUrl = res.data.platformValue + '&no=' + this.model.billNo + '&type=2'
-            this.$refs.modalWorkflow.show(this.model, sendWorkflowUrl, this.model.billNo, 2, 320)
-            this.$refs.modalWorkflow.title = "发起流程"
-          }
-        })
-      } else {
-        this.$message.warning('请先保存单据后再提交流程！');
-      }
     },
     //加载快捷按钮：供应商、客户、结算账户、经手人
     initQuickBtn() {

@@ -1081,11 +1081,11 @@ public class DepotItemController {
         String message = "";
         try {
             List<String> barCodeList = new ArrayList<>();
-            //文件扩展名只能为xls
+            // 文件扩展名仅接受 xls / xlsx
             String fileName = file.getOriginalFilename();
             if(StringUtil.isNotEmpty(fileName)) {
-                String fileExt = fileName.substring(fileName.indexOf(".")+1);
-                if(!"xls".equals(fileExt)) {
+                String fileExt = fileName.substring(fileName.lastIndexOf(".")+1).toLowerCase();
+                if(!"xls".equals(fileExt) && !"xlsx".equals(fileExt)) {
                     throw new BusinessRunTimeException(ExceptionConstants.FILE_EXTENSION_ERROR_CODE,
                             ExceptionConstants.FILE_EXTENSION_ERROR_MSG);
                 }
