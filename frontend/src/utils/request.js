@@ -7,11 +7,11 @@ import { ACCESS_TOKEN } from "@/store/mutation-types"
 
 /**
  * 【指定 axios的 baseURL】
- * 如果手工指定 baseURL: '/jshERP-boot'
+ * 如果手工指定 baseURL: '/mogoo-erp'
  * 则映射后端域名，通过 vue.config.js
  * @type {*|string}
  */
-let apiBaseUrl = window._CONFIG['domianURL'] || "/jshERP-boot";
+let apiBaseUrl = window._CONFIG['domianURL'] || "/mogoo-erp";
 //console.log("apiBaseUrl= ",apiBaseUrl)
 // 创建 axios 实例
 const service = axios.create({

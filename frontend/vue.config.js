@@ -47,8 +47,8 @@ module.exports = {
     devServer: {
         port: 3000,
         proxy: {
-            '/jshERP-boot': {
-                target: 'http://localhost:9999', // 请求本地 需要jshERP-boot后台项目
+            '/mogoo-erp': {
+                target: 'http://localhost:8090', // 请求本地 需要mogoo-erp后台项目
                 ws: false,
                 changeOrigin: true
             }

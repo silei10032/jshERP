@@ -13,9 +13,8 @@ import java.io.IOException;
 
 @WebFilter(filterName = "LogCostFilter", urlPatterns = {"/*"},
         initParams = {@WebInitParam(name = "filterPath",
-                      value = "/jshERP-boot/platformConfig/getPlatform#/jshERP-boot/v2/api-docs#/jshERP-boot/webjars#" +
-                              "/jshERP-boot/systemConfig/static#/jshERP-boot/api/plugin/wechat/weChat/share#" +
-                              "/jshERP-boot/api/plugin/general-ledger/pdf/voucher#/jshERP-boot/api/plugin/tenant-statistics/tenantClean")})
+                      value = "/mogoo-erp/platformConfig/getPlatform#/mogoo-erp/v3/api-docs#/mogoo-erp/swagger-ui#" +
+                              "/mogoo-erp/webjars#/mogoo-erp/systemConfig/static")})
 public class LogCostFilter implements Filter {
 
     private static final String FILTER_PATH = "filterPath";
@@ -49,10 +48,10 @@ public class LogCostFilter implements Filter {
             chain.doFilter(request, response);
             return;
         }
-        if (requestUrl.equals("/jshERP-boot/doc.html") || requestUrl.equals("/jshERP-boot/user/login")
-                || requestUrl.equals("/jshERP-boot/user/register") || requestUrl.equals("/jshERP-boot/user/weixinLogin")
-                || requestUrl.equals("/jshERP-boot/user/weixinBind") || requestUrl.equals("/jshERP-boot/user/registerUser")
-                || requestUrl.equals("/jshERP-boot/user/randomImage")) {
+        if (requestUrl.equals("/mogoo-erp/doc.html") || requestUrl.equals("/mogoo-erp/user/login")
+                || requestUrl.equals("/mogoo-erp/user/register") || requestUrl.equals("/mogoo-erp/user/weixinLogin")
+                || requestUrl.equals("/mogoo-erp/user/weixinBind") || requestUrl.equals("/mogoo-erp/user/registerUser")
+                || requestUrl.equals("/mogoo-erp/user/randomImage")) {
             chain.doFilter(request, response);
             return;
         }
@@ -65,7 +64,7 @@ public class LogCostFilter implements Filter {
             }
         }
         servletResponse.setStatus(500);
-        if(!requestUrl.equals("/jshERP-boot/user/logout") && !requestUrl.equals("/jshERP-boot/function/findMenuByPNumber")) {
+        if(!requestUrl.equals("/mogoo-erp/user/logout") && !requestUrl.equals("/mogoo-erp/function/findMenuByPNumber")) {
             servletResponse.getWriter().write("loginOut");
         }
     }

@@ -1,27 +1,42 @@
+# 单文件模式：所有环境共用此 yml。
+# 敏感字段用 ${VAR:default} 模式 —— 本地无 env 时回退到 default；docker-compose 注入 env 时覆盖。
+# 本地体验：mvn spring-boot:run 直接跑，default 即可用。
+# Docker / prod：通过 .env + docker-compose environment 块注入实际值。
+
 # 服务端口
 server:
-  port: 9999
+  port: 8090
   servlet:
     # 登录超时 - 秒
     session:
       timeout: 36000
     # 服务路径
-    context-path: /jshERP-boot
+    context-path: /mogoo-erp
   tomcat:
     # 文件上传临时路径
     basedir: /opt/tmp/tomcat
+    # Tomcat 10（Boot 3）默认严格 RFC 3986，拒绝 URL query 含未编码的 [ ] { } 等保留字符。
+    # 前端调用 /depotHead/list?search={...} 等查询会被 400。放宽以兼容老前端代码
+    relaxed-query-chars: '[,],{,},|,^,`,\,"'
+    relaxed-path-chars: '[,],{,},|,^,`,\,"'
 
 spring:
+  # 项目历史遗留：userService ↔ orgaUserRelService 等存在循环依赖。Boot 2.6+ 默认禁止，
+  # 暂打开开关让应用启动；彻底修复需要重构 Service 解耦
+  main:
+    allow-circular-references: true
   datasource:
-    # 数据库连接
-    url: jdbc:mysql://127.0.0.1:3306/mogoo_erp?useUnicode=true&characterEncoding=utf8&useCursorFetch=true&defaultFetchSize=500&allowMultiQueries=true&rewriteBatchedStatements=true&useSSL=false
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://127.0.0.1:3306/mogoo_erp?useUnicode=true&characterEncoding=utf8&useCursorFetch=true&defaultFetchSize=500&allowMultiQueries=true&rewriteBatchedStatements=true&useSSL=false&serverTimezone=Asia/Shanghai}
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: root12345
-  redis:
-    host: 127.0.0.1
-    port: 6379
-    password: root12345
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:root12345}
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:127.0.0.1}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${SPRING_DATA_REDIS_PASSWORD:root12345}
+      # 多项目共享 Redis 时，用 db 编号区分（mogooErp 默认 0；prod 多项目部署改成 1）
+      database: ${SPRING_DATA_REDIS_DATABASE:0}
   servlet:
     multipart:
       # 文件上传限制 (byte)
@@ -45,7 +60,12 @@ tenant:
 file:
   # 文件上传方式 1-本机 2-oss
   uploadType: 1
-  # 文件上传根目录
-  path: /opt/jshERP/upload
+  # 文件上传根目录（容器内路径；host bind mount 在 docker-compose volumes 块映射）
+  path: ${FILE_UPLOAD_PATH:/opt/jshERP/upload}
   # 文件导出缓存
-  exportTmp: /opt/jshERP/export
+  exportTmp: ${FILE_EXPORT_PATH:/opt/jshERP/export}
+
+# 日志级别（prod 通过 env 覆盖：LOGGING_LEVEL_COM_JSH=INFO）
+logging:
+  level:
+    com.jsh: ${LOG_LEVEL_APP:DEBUG}
