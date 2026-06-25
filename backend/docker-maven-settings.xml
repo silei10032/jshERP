@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+  <mirrors>
+    <mirror>
+      <id>aliyunmaven</id>
+      <mirrorOf>*</mirrorOf>
+      <name>阿里云公共仓库</name>
+      <url>https://maven.aliyun.com/repository/public</url>
+    </mirror>
+  </mirrors>
+  <profiles>
+    <profile>
+      <id>aliyun-checksum-warn</id>
+      <repositories>
+        <repository>
+          <id>aliyunmaven</id>
+          <url>https://maven.aliyun.com/repository/public</url>
+          <releases><checksumPolicy>warn</checksumPolicy></releases>
+          <snapshots><checksumPolicy>warn</checksumPolicy></snapshots>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>aliyunmaven</id>
+          <url>https://maven.aliyun.com/repository/public</url>
+          <releases><checksumPolicy>warn</checksumPolicy></releases>
+          <snapshots><checksumPolicy>warn</checksumPolicy></snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+  <activeProfiles>
+    <activeProfile>aliyun-checksum-warn</activeProfile>
+  </activeProfiles>
+</settings>

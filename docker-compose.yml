@@ -1,0 +1,74 @@
+# 单文件模式：本地 + 生产共用此 compose。
+# 差异通过 .env 控制（密码、host、端口、文件路径）。
+# 服务器部署时只需：cp .env.example .env、填密码、docker compose up -d --build。
+
+services:
+
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mogoo-erp-app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8090}:8090"
+    environment:
+      TZ: Asia/Shanghai
+      # 数据库（host.docker.internal 连宿主机直装的 MySQL）
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:${DB_PORT:-3306}/${DB_NAME:-mogoo_erp}?useUnicode=true&characterEncoding=utf8&useCursorFetch=true&defaultFetchSize=500&allowMultiQueries=true&rewriteBatchedStatements=true&useSSL=false&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-root}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD 必填，请在 .env 设置}
+      # Redis（host.docker.internal 连宿主机直装的 Redis）
+      SPRING_DATA_REDIS_HOST: host.docker.internal
+      SPRING_DATA_REDIS_PORT: ${REDIS_PORT:-6379}
+      SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD 必填，请在 .env 设置}
+      # 多项目共享 Redis 时用 db 编号区分（mogooErp 用 1；本地单独跑可不设）
+      SPRING_DATA_REDIS_DATABASE: ${REDIS_DB:-0}
+      # 业务日志级别：本地 DEBUG（看 SQL），prod 设 INFO
+      LOG_LEVEL_APP: ${LOG_LEVEL_APP:-DEBUG}
+      # 文件路径（容器内）
+      FILE_UPLOAD_PATH: /opt/jshERP/upload
+      FILE_EXPORT_PATH: /opt/jshERP/export
+      # JVM 堆大小，prod 4G 服务器建议 -Xms512m -Xmx1024m
+      JAVA_OPTS: ${JAVA_OPTS:--Xms256m -Xmx512m -Dfile.encoding=UTF-8 -Duser.timezone=Asia/Shanghai}
+    # Linux 上 docker daemon 不自动解析 host.docker.internal，必须显式映射到 host-gateway。
+    # Mac Docker Desktop 自动解析，加此项也不冲突
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      # 默认用 named volume；prod 改成 host 路径（如 /data/mogoo-erp/upload）方便备份
+      - ${UPLOAD_DIR:-mogoo-erp-upload}:/opt/jshERP/upload
+      - ${EXPORT_DIR:-mogoo-erp-export}:/opt/jshERP/export
+    networks:
+      - mogoo-erp-net
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "10"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: mogoo-erp-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8091}:80"
+    depends_on:
+      - app
+    networks:
+      - mogoo-erp-net
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+volumes:
+  mogoo-erp-upload:
+  mogoo-erp-export:
+
+networks:
+  mogoo-erp-net:
+    driver: bridge

@@ -4,6 +4,9 @@
 .DS_Store
 **/.DS_Store
 
+## docker secrets：.env 真实环境文件不进 git，.env.example 模板可提交
+.env
+
 ## backend
 **/target
 **/logs
