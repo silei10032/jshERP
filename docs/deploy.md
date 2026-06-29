@@ -414,6 +414,7 @@ curl -s http://localhost:8090/mogoo-erp/v3/api-docs | head -c 100   # springdoc
 > 备案是按主体/根域名的，根域名备案后子域名（menu./erp./…）全覆盖，无需单独备案。
 
 以 MogooUtils（`menu.mogoocloud.cn` → 容器 8082）为例，mogooErp 把 `menu`/`8082` 换成 `erp`/`8091` 再走一遍即可。
+> ✅ mogooErp 已按此完成：`https://erp.mogoocloud.cn` → 127.0.0.1:8091，certbot 非交互签发（账号复用 menu 那次，命令 `sudo certbot --nginx -d erp.mogoocloud.cn -n --agree-tos --redirect`）。
 
 ### 4.1 DNS 解析
 
@@ -536,7 +537,7 @@ mysqldump -u root -p canteen_delivery | gzip > ~/backups/canteen_delivery_$(date
 
 到了需要时再做：
 
-- ~~**域名 + Let's Encrypt SSL**~~ → ✅ 已完成，见 **阶段 4**（MogooUtils 已上 `https://menu.mogoocloud.cn`；mogooErp 待部署后照 `erp.` 子域名套一遍）
+- ~~**域名 + Let's Encrypt SSL**~~ → ✅ 已完成，见 **阶段 4**（MogooUtils `https://menu.mogoocloud.cn`、mogooErp `https://erp.mogoocloud.cn` 均已上线，证书有效期至 2026-09-27，自动续期已配）
 - **自动备份**：cron + `mysqldump` + rsync 到腾讯云 COS
 - **freshprice / MogooApi 部署**：相同模板套用，端口分配见上表
 - **监控告警**：腾讯云监控 ECS 基础指标够用，业务层面可后续加 Prometheus
