@@ -147,7 +147,9 @@ public class OrganizationController {
      */
     @GetMapping(value = "/getOrganizationTree")
     @Operation(summary = "获取部门树数据")
-    public JSONArray getOrganizationTree(@RequestParam("id") Long id) throws Exception{
+    // required=false：前端查根树时传 id=（空串），Boot 3 会把空串转成 null，
+    // 若保持必填会抛 MissingServletRequestParameterException 导致整棵树查不出来（Boot 2→3 行为变化）
+    public JSONArray getOrganizationTree(@RequestParam(value = "id", required = false) Long id) throws Exception{
        JSONArray arr=new JSONArray();
        List<TreeNode> organizationTree= organizationService.getOrganizationTree(id);
        if(organizationTree!=null&&organizationTree.size()>0){
