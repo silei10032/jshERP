@@ -1,5 +1,6 @@
 package com.jsh.erp.datasource.mappers;
 
+import com.baomidou.mybatisplus.annotation.InterceptorIgnore;
 import com.jsh.erp.datasource.entities.DepotHead;
 import com.jsh.erp.datasource.vo.*;
 import org.apache.ibatis.annotations.Param;
@@ -38,6 +39,9 @@ public interface DepotHeadMapperEx {
             @Param("salesMan") String salesMan,
             @Param("remark") String remark);
 
+    // JOIN jsh_depot_item+jsh_material（两表均有 tenant_id，未用别名），租户拦截器注入的
+    // tenant_id 过滤会"ambiguous"。idList 来自上游已按租户过滤的主查询，故跳过租户拦截安全
+    @InterceptorIgnore(tenantLine = "true")
     List<MaterialsListVo> findMaterialsListMapByHeaderIdList(
             @Param("idList") List<Long> idList);
 
