@@ -1,4 +1,4 @@
-# mogooErp & MogooUtils 部署 Runbook（腾讯云 Ubuntu 22.04）
+# mogooErp & MogooUtils 部署 Runbook（腾讯云 Ubuntu 24.04）
 
 > 本文档面向首次部署。一次性按章节顺序执行；后续更新代码只需走"第 4 节 常用运维操作"。
 >
@@ -11,11 +11,11 @@
 
 | 项 | 值 |
 |---|---|
-| 服务器规格 | 腾讯云 ECS · Ubuntu Server 22.04 LTS 64位 · 标准型 SA5 · 4C8G · 50G SSD |
-| 部署用户 | `mogoo` |
-| SSH 端口 | `22000`（非默认） |
-| MySQL | 8.4 LTS · host 直装 · 127.0.0.1:3306 · 用 root 账号 |
-| Redis | 8.8 · host 直装 · 127.0.0.1:6379 · requirepass 强密码 |
+| 服务器规格 | 腾讯云 ECS · Ubuntu Server 24.04 LTS 64位（noble）· 标准型 SA5 · 4C8G · 50G SSD |
+| 部署用户 | `ubuntu`（系统默认，省去自建用户） |
+| SSH 端口 | `22`（默认，未做端口改写） |
+| MySQL | 8.0（Ubuntu 自带源）· host 直装 · bind `0.0.0.0:3306` · 用 root 账号 · 外部由安全组屏蔽 |
+| Redis | 8.x · host 直装 · bind `0.0.0.0:6379` · requirepass 强密码 · 外部由安全组屏蔽 |
 | 项目代码目录 | `/opt/MogooUtils`、`/opt/mogooErp` |
 | 文件持久化目录 | `/data/mogoo-erp/upload`、`/data/mogoo-erp/export` |
 | 时区 | Asia/Shanghai |
@@ -28,18 +28,18 @@
 |---|---|---|---|
 | MogooUtils | 8081 | **8082** | 暴露给公网的是 8082 |
 | mogooErp | 8090 | **8091** | 暴露给公网的是 8091 |
-| freshprice / MogooApi | 暂不部署 | — | 后续再上 |
+| freshprice | 8080 | **8092** | 走 host nginx → `price.mogoocloud.cn` |
+| MogooApi | 暂不部署 | — | 后续再上 |
 
 ### 腾讯云安全组规则
 
 | 端口 | 来源 | 用途 |
 |---|---|---|
-| 22000 | **你的家庭 IP/32（白名单）** | SSH |
+| 22 | **你的家庭 IP/32（白名单）** | SSH（默认端口，靠 key + 源 IP 白名单防护） |
 | 8082 | 0.0.0.0/0 | MogooUtils 前端 |
 | 8091 | 0.0.0.0/0 | mogooErp 前端 |
 | 8081 / 8090 | （不开放） | 后端 API 仅供 nginx 反代访问 |
 | 3306 / 6379 | （不开放） | MySQL/Redis 仅本机 docker 访问 |
-| 22 默认 SSH | （不开放） | 已改 22000 |
 
 ---
 
@@ -57,8 +57,8 @@ cat >> ~/.ssh/config <<'EOF'
 
 Host tencent-mogoo
     HostName <填公网IP>
-    Port 22000
-    User mogoo
+    Port 22
+    User ubuntu
     IdentityFile ~/.ssh/tencent_mogoo
     IdentitiesOnly yes
 EOF
@@ -69,7 +69,7 @@ cat ~/.ssh/tencent_mogoo.pub
 
 ### 0.2 腾讯云控制台
 
-1. 购买 ECS（Ubuntu 22.04 + 4C8G + 50G SSD）
+1. 购买 ECS（Ubuntu 24.04 + 4C8G + 50G SSD）
 2. 安全组按上表配置
 3. 记下 **公网 IP**，填到 `~/.ssh/config` 的 HostName 处
 
@@ -77,94 +77,127 @@ cat ~/.ssh/tencent_mogoo.pub
 
 ## 阶段 1 · 服务器初始化（一次性 · 约 30 分钟）
 
-### 1.1 首次登录 + SSH 加固
+### 1.1 首次登录 + 装 SSH key
+
+> 不创建专用部署用户、不改端口、不禁密码 —— 本机签发了 key 后从 Mac 用 key 登 ubuntu，
+> 服务器层面靠安全组只放白名单 IP 来兜底。后续要更硬可以再回头加 `PasswordAuthentication no`。
 
 ```bash
-# 本机：用控制台设置的初始密码登录 ubuntu 用户
-ssh ubuntu@<公网IP>
-# 此时是 22 端口，root 密码登录
+# 本机：用控制台设置的初始密码登录 ubuntu 一次，把 tencent_mogoo.pub 推上去
+cat ~/.ssh/tencent_mogoo.pub | ssh ubuntu@<公网IP> \
+  'mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && echo OK'
+# 输入 ubuntu 密码，看到 OK 即装好
 
-# 创建部署用户 mogoo
-sudo adduser mogoo
-sudo usermod -aG sudo mogoo
-
-# 把你的公钥放到 mogoo 用户下
-sudo mkdir -p /home/mogoo/.ssh
-echo "<把 ~/.ssh/tencent_mogoo.pub 内容粘贴这里>" | sudo tee /home/mogoo/.ssh/authorized_keys
-sudo chown -R mogoo:mogoo /home/mogoo/.ssh
-sudo chmod 700 /home/mogoo/.ssh
-sudo chmod 600 /home/mogoo/.ssh/authorized_keys
-
-# 修改 SSH 配置
-sudo sed -i 's/^#*Port .*/Port 22000/' /etc/ssh/sshd_config
-sudo sed -i 's/^#*PermitRootLogin .*/PermitRootLogin no/' /etc/ssh/sshd_config
-sudo sed -i 's/^#*PasswordAuthentication .*/PasswordAuthentication no/' /etc/ssh/sshd_config
-sudo systemctl restart sshd
-exit
-
-# 本机：用新配置测试登录
+# 本机：用 key 测试登录
 ssh tencent-mogoo
-# 进入后 whoami 应输出 mogoo
+# 进入后 whoami 应输出 ubuntu，不再问密码
 ```
 
-> ⚠️ 如果改了 SSH 端口后连不上，登录腾讯云控制台 → ECS → 远程连接（VNC）→ 改回配置。
-> 安全组别忘了开 22000。
+### 1.2 装 Docker
 
-### 1.2 系统更新 + 时区
+> Ubuntu 自带源里没有 `docker-compose-plugin`，必须用 Docker 的 APT 源。
+> 走该源同时拿到 `docker-ce` + `docker-compose-plugin` + `buildx`，一次到位。
+>
+> ⚠️ **腾讯云 ECS 必须用腾讯云镜像源**：国内网访问官方 `download.docker.com`
+> 常 timeout，导致 `apt update` 静默拿不到包目录、`apt install` 报
+> "Package docker-ce is not available / has no installation candidate"。
+> 走 `mirrors.tencentyun.com` 不算公网流量、不收费、对 ECS 高速。
+> （非腾讯云环境想用官方源，把下面两处 `mirrors.tencentyun.com/docker-ce`
+> 换成 `download.docker.com` 即可。）
 
 ```bash
-sudo apt update && sudo apt full-upgrade -y
-sudo timedatectl set-timezone Asia/Shanghai
-sudo apt install -y curl wget vim git unzip ca-certificates gnupg
-```
+# 1) 装 Docker GPG key（腾讯云镜像）
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://mirrors.tencentyun.com/docker-ce/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-### 1.3 装 Docker
+# 2) 加 Docker APT 源（腾讯云镜像）
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://mirrors.tencentyun.com/docker-ce/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+  | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-```bash
-sudo apt install -y docker.io docker-compose-plugin
-sudo usermod -aG docker $USER
-exit   # 退出重登才能让 docker 组生效
+# 3) 装 docker engine + compose plugin
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# 4) 配 Docker Hub 镜像加速（关键！否则 build 拉 nginx/node/temurin 等 base 镜像会 i/o timeout）
+#    docker.io / registry-1.docker.io 在腾讯云内网不通，mirror.ccs.tencentyun.com 是 ECS 专用镜像
+sudo mkdir -p /etc/docker
+sudo tee /etc/docker/daemon.json >/dev/null <<'EOF'
+{
+  "registry-mirrors": ["https://mirror.ccs.tencentyun.com"]
+}
+EOF
+sudo systemctl restart docker
+docker info | grep -A2 "Registry Mirrors"    # 应列出 mirror.ccs.tencentyun.com
+
+# 5) 把 ubuntu 加到 docker 组（免 sudo 跑 docker）
+#    显式写 ubuntu，别用 $USER——sudo 环境下 $USER 可能解析不到登录用户，加不进组
+sudo usermod -aG docker ubuntu
+getent group docker      # 确认末尾有 ubuntu，如 docker:x:999:ubuntu；没有就说明没加成功
+exit   # 必须【完整重新登录】组才生效；同会话内或 newgrp 在没真正进组前都不行
 
 # 本机重新登录
 ssh tencent-mogoo
-docker version
-docker compose version
+id -nG                   # 应包含 docker
+docker version           # 29.x
+docker compose version   # v5.x
+docker ps                # 不带 sudo 能列出空表头 = 组权限 OK
 ```
 
-### 1.4 装 MySQL 8.4（官方 APT 源）
+> 排错：`docker version` 客户端能打印但报 `permission denied ... /var/run/docker.sock`，
+> 就是 docker 组没生效。`newgrp docker` 反过来跟你要密码且 Invalid，说明 ubuntu 压根
+> 没进组（不在组才会问那个不存在的组密码）——回去重跑上面的 `usermod` + 完整重登。
+
+### 1.3 装 MySQL 8.0（Ubuntu 自带源）
+
+> 用 Ubuntu 24.04 自带源的 `mysql-server`（8.0），**不走 MySQL 官方 APT**。原因：
+> 官方源那把签名 key 周期性过期、`apt update` 老报 `EXPKEYSIG`，维护烦；
+> 而 Ubuntu 的 8.0 由 Canonical backport 安全补丁直到 24.04 EOL（2029），
+> app 也不区分 8.0/8.4。少一个第三方源、少一堆坑。
+> （真要 8.4 LTS 再上 mysql-apt-config，但就要自己扛 key 过期。）
 
 ```bash
-# 下载并安装 APT 配置包
-wget https://dev.mysql.com/get/mysql-apt-config_0.8.33-1_all.deb
-sudo dpkg -i mysql-apt-config_0.8.33-1_all.deb
-# 弹出菜单：
-#   "MySQL Server & Cluster" → 选 "mysql-8.4-lts"
-#   "MySQL Tools & Connectors" → 留默认
-#   最后选 "OK" 退出
-
-sudo apt update
 sudo apt install -y mysql-server
 
-# 设 root 密码 + 加固
+# 加固（删匿名用户 / test 库）。注意 Ubuntu 包装完后 root@localhost 默认是
+# auth_socket 插件（无密码、靠 OS 用户认证），所以这一步【不会让你设 root 密码】，
+# 只会问要不要改——auth_socket 下跳过即可，密码在下一步用 sudo mysql 设。
 sudo mysql_secure_installation
-# 提示：
-#   Validate password component → N（你可以选 Y 上强密码策略，但 root12345 这种就过不去了）
-#   New root password → 填强密码
+# 各项怎么选：
+#   VALIDATE PASSWORD component → 选 Y 后默认是 MEDIUM（要大小写+数字+特殊符号，
+#     mogoo123 这种纯小写+数字过不去）；想用弱密码就选 N，或装好后 SET GLOBAL ...policy=LOW
 #   Remove anonymous users → Y
-#   Disallow root login remotely → Y
+#   Disallow root login remotely → Y（不影响下面单独给 docker 子网开 root）
 #   Remove test database → Y
 #   Reload privilege tables → Y
 
-# 验证只监听本机
-sudo ss -tlnp | grep 3306
-# 应只见 127.0.0.1:3306 / [::1]:3306，不见 0.0.0.0:3306
+# 设 root 密码 + 放开 docker 子网访问（root@localhost 默认 auth_socket，sudo mysql 免密进）
+#   · 把 root@localhost 从 auth_socket 改成密码认证，这样 deploy.md 里 mysql -u root -p 才能用
+#   · 容器从 docker 网桥 IP（172.x）连、不算 localhost，上一步又禁了远程 root，
+#     所以必须单独建 root@'172.%'，否则 §3.6 启动报 Access denied for 'root'@'172.x.x.x'
+sudo mysql <<'SQL'
+-- 弱密码过不了默认 MEDIUM 策略时，取消下一行注释降到 LOW（只校验长度≥8）：
+-- SET GLOBAL validate_password.policy = LOW;
+ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY '<你的root密码>';
+CREATE USER IF NOT EXISTS 'root'@'172.%' IDENTIFIED WITH caching_sha2_password BY '<你的root密码>';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'172.%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+SQL
 
-# 验证版本
-mysql -u root -p -e "SELECT VERSION();"
-# 输出 8.4.x
+# 改 bind-address 让 docker 容器能从 host.docker.internal 连进来
+# 默认 bind 127.0.0.1，但 Linux 上 docker 容器走 docker 网桥 IP（如 172.17.0.1），
+# 必须 bind 0.0.0.0 才能被容器访问。外部访问由腾讯云安全组（不开 3306）+ 强密码兜底。
+sudo sed -i 's/^bind-address.*=.*/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
+sudo systemctl restart mysql
+
+# 验证：监听 + 密码登录 + 两个 root 用户都在
+sudo ss -tlnp | grep 3306
+# 应见 0.0.0.0:3306（容器走 docker bridge 连）。X 协议 33060 留在 127.0.0.1 即可，没用到。
+mysql -u root -p -e "SELECT VERSION();"                                          # 输密码，应打出 8.0.x
+mysql -u root -p -e "SELECT user,host,plugin FROM mysql.user WHERE user='root';" # 应见 localhost + 172.% 两行
 ```
 
-### 1.5 装 Redis 8.8（官方 APT 源）
+### 1.4 装 Redis（官方 APT 源）
 
 ```bash
 # 加 Redis 官方源
@@ -176,30 +209,34 @@ sudo apt update
 apt-cache madison redis-server | head -5   # 看可用版本（应有 8.8.x）
 sudo apt install -y redis-server
 
-# 设密码 + 限制监听
+# 设密码 + 允许 docker 网桥访问
+# bind 同 MySQL：必须 0.0.0.0，否则容器 host.docker.internal 连不上。
+# 外部访问由腾讯云安全组（不开 6379）+ requirepass 兜底。
 sudo sed -i 's|^# requirepass .*|requirepass <你的Redis密码>|' /etc/redis/redis.conf
+echo "bind 0.0.0.0" | sudo tee -a /etc/redis/redis.conf   # 追加在文件尾，最后一条 bind 生效
 sudo systemctl restart redis-server
 sudo systemctl enable redis-server
 
 # 验证
 redis-cli -a '<你的Redis密码>' ping     # 输出 PONG
 redis-cli -a '<你的Redis密码>' INFO server | grep redis_version
-# 输出 redis_version:8.8.x
+# 输出 redis_version:8.x.x
 
-# 检查只监听本机
+# 检查监听
 sudo ss -tlnp | grep 6379
-# 应只见 127.0.0.1:6379
+# 应见 0.0.0.0:6379（容器走 docker bridge 连）
 ```
 
-### 1.6 阶段 1 验收清单
+### 1.5 阶段 1 验收清单
 
 ```bash
-docker version              # 28.x
-docker compose version      # v2.x
-mysql --version             # 8.4.x
-redis-cli --version         # 8.8.x
+docker version              # 29.x
+docker compose version      # v5.x
+mysql --version             # 8.0.x（Ubuntu 自带源）
+redis-cli --version         # 8.x.x
 sudo ss -tlnp | grep -E "3306|6379"
-# 都应仅 127.0.0.1
+# 都应见 0.0.0.0:3306 / 0.0.0.0:6379（容器走 docker bridge 连）；
+# 外部访问由腾讯云安全组（不开 3306/6379）+ 强密码兜底。
 ```
 
 ---
@@ -216,11 +253,36 @@ EOF
 
 ### 2.2 拉代码
 
+> ⚠️ 私有仓 + 腾讯云：github 的 **HTTPS 常被 TLS 重置**（`GnuTLS recv error -110`），
+> 且私有仓要鉴权。改用 **SSH over 443**（绕过 GFW 对 22 端口的封锁）+ 密钥。
+> 下面的「一次性 GitHub 配置」服务器只做一次，之后所有私有仓（MogooUtils / mogooErp / …）共用。
+
 ```bash
-sudo mkdir -p /opt/MogooUtils && sudo chown mogoo:mogoo /opt/MogooUtils
-cd /opt
-git clone https://github.com/silei10032/MogooUtils.git
-# 如果用 ssh 方式，先把服务器上的 ~/.ssh/id_ed25519.pub 加到 github deploy keys
+sudo apt install -y git    # 精简镜像默认无 git；已装可跳过
+
+# === 一次性 GitHub 配置（服务器全局，只做一次）===
+ssh-keygen -t ed25519 -f ~/.ssh/github_deploy -N "" -C "mogoo-server"
+cat >> ~/.ssh/config <<'EOF'
+
+Host github.com
+    HostName ssh.github.com
+    Port 443
+    User git
+    IdentityFile ~/.ssh/github_deploy
+    IdentitiesOnly yes
+EOF
+chmod 600 ~/.ssh/config
+nc -zv ssh.github.com 443          # 先确认 443 通（国内通常能过）
+cat ~/.ssh/github_deploy.pub
+# ↑ 把这行公钥加到 GitHub，二选一：
+#   多仓共用 → 账号 Settings → SSH and GPG keys → New SSH key（推荐，一把覆盖所有私有仓）
+#   单仓只读 → 该仓 Settings → Deploy keys → Add（deploy key 不能跨仓复用，每仓得单独一把）
+ssh -T git@github.com              # 成功显示：Hi <repo/user>! You've successfully authenticated
+
+# === 拉代码 ===
+sudo mkdir -p /opt/MogooUtils && sudo chown ubuntu:ubuntu /opt/MogooUtils
+cd /opt && rm -rf MogooUtils       # 清掉可能残留的空目录
+git clone git@github.com:silei10032/MogooUtils.git
 cd MogooUtils
 ```
 
@@ -278,10 +340,13 @@ EOF
 
 ### 3.2 拉代码
 
+> GitHub 访问已在 §2.2「一次性配置」搞定。若 §2.2 用的是**账号级 SSH key**，这里直接 clone；
+> 若用的是 **per-repo deploy key**，得先给 jshERP 仓单独再加一把 deploy key（deploy key 不能跨仓复用）。
+
 ```bash
-sudo mkdir -p /opt/mogooErp && sudo chown mogoo:mogoo /opt/mogooErp
-cd /opt
-git clone https://github.com/silei10032/jshERP.git mogooErp
+sudo mkdir -p /opt/mogooErp && sudo chown ubuntu:ubuntu /opt/mogooErp
+cd /opt && rm -rf mogooErp
+git clone git@github.com:silei10032/jshERP.git mogooErp
 cd mogooErp
 ```
 
@@ -296,7 +361,7 @@ mysql -u root -p mogoo_erp -e "SHOW TABLES;" | head
 
 ```bash
 sudo mkdir -p /data/mogoo-erp/upload /data/mogoo-erp/export
-sudo chown -R mogoo:mogoo /data/mogoo-erp
+sudo chown -R ubuntu:ubuntu /data/mogoo-erp
 ```
 
 ### 3.5 配置 .env
@@ -336,6 +401,75 @@ curl -s http://localhost:8090/mogoo-erp/v3/api-docs | head -c 100   # springdoc
 用 jsh / 123456 登录
 点几个单据列表（采购订单 / 销售订单 / 零售出库），确认能加载数据 → 阶段 3 完成
 ```
+
+---
+
+## 阶段 4 · 域名 + HTTPS（host nginx 反代 + Let's Encrypt）
+
+> 给已部署的应用配域名 + SSL。架构：
+> `浏览器 ──https/443──▶ host nginx（域名 + 证书）──▶ 127.0.0.1:8082/8091（容器）`
+> 每个应用一个子域名（`menu.` → MogooUtils、`erp.` → mogooErp），互不干扰。
+>
+> ⚠️ **大陆服务器前置条件：域名必须 ICP 备案**，否则腾讯云封 80 端口、域名打不开。
+> 备案是按主体/根域名的，根域名备案后子域名（menu./erp./…）全覆盖，无需单独备案。
+
+以 MogooUtils（`menu.mogoocloud.cn` → 容器 8082）为例，mogooErp 把 `menu`/`8082` 换成 `erp`/`8091` 再走一遍即可。
+
+### 4.1 DNS 解析
+
+腾讯云 DNSPod → 域名 → 解析 → 添加记录：主机记录 `menu`、类型 `A`、记录值 `<公网IP>`、TTL 600。
+本机 `dig +short menu.mogoocloud.cn` 返回公网 IP 即生效。
+
+### 4.2 安全组放行 80/443
+
+腾讯云安全组入站加两条：端口 `80`、`443`，来源 `0.0.0.0/0`（对公众开放的 web 端口，不走白名单）。
+
+### 4.3 装 nginx + certbot，配反代
+
+```bash
+sudo apt install -y nginx certbot python3-certbot-nginx
+
+sudo tee /etc/nginx/sites-available/menu.mogoocloud.cn >/dev/null <<'EOF'
+server {
+    listen 80;
+    server_name menu.mogoocloud.cn;
+    client_max_body_size 50m;          # 允许 Excel 上传（默认 1m 太小）
+
+    location / {
+        proxy_pass http://127.0.0.1:8082;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+EOF
+
+sudo ln -sf /etc/nginx/sites-available/menu.mogoocloud.cn /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default       # 去掉默认欢迎页
+sudo nginx -t && sudo systemctl reload nginx
+# 此时 http://menu.mogoocloud.cn 应能打开登录页（纯 http）
+```
+
+### 4.4 签 SSL 证书
+
+```bash
+sudo certbot --nginx -d menu.mogoocloud.cn
+# 交互：填邮箱 → Agree TOS=Y → share EFF=N → redirect HTTP→HTTPS 选 2
+# certbot 自动：写入 443+证书、加 80→443 跳转、装自动续期定时器
+
+# 验证
+systemctl list-timers | grep certbot   # 见 certbot.timer = 自动续期已就绪
+sudo certbot renew --dry-run            # 演练续期，success 即长期无忧
+```
+
+浏览器开 `https://menu.mogoocloud.cn`，带锁、登录页正常即完成。
+
+### 4.5（可选）收紧：容器端口只绑本机
+
+默认容器把 8082/8091 绑在 `0.0.0.0`，公网仍能 `http://IP:8082` 绕过 SSL 直连。要堵掉：
+把对应 `docker-compose.yml` 的端口映射改成 `127.0.0.1:8082:80`、`docker compose up -d` 重建，
+再到安全组**删掉 8082/8091**，只留 80/443。这样唯一公网入口就是带 SSL 的 nginx。
 
 ---
 
@@ -392,6 +526,8 @@ mysqldump -u root -p canteen_delivery | gzip > ~/backups/canteen_delivery_$(date
 | `/swagger-ui/index.html` 返回 500 + "loginOut" | LogCostFilter 白名单老路径，最新代码已修 |
 | 容器内 ping `host.docker.internal` 失败 | docker-compose.yml 没有 `extra_hosts: host-gateway`，最新代码已加 |
 | 前端 build 时 npm peer dep ERESOLVE | frontend/Dockerfile 应有 `--legacy-peer-deps`，最新代码已加 |
+| `docker compose build` 拉 base 镜像 `registry-1.docker.io ... i/o timeout` | Docker Hub 被墙，配镜像加速器 `/etc/docker/daemon.json`（见 §1.2 步骤 4）后 `sudo systemctl restart docker` |
+| `git clone` 报 `GnuTLS recv error -110` | github HTTPS 被 TLS 重置，改用 SSH over 443 + 密钥（见 §2.2 一次性配置） |
 | `docker compose up` 后 app 容器 `Exit 1` | 看 `docker compose logs app`，绝大多数情况是 .env 或数据库未初始化 |
 
 ---
@@ -400,7 +536,7 @@ mysqldump -u root -p canteen_delivery | gzip > ~/backups/canteen_delivery_$(date
 
 到了需要时再做：
 
-- **域名 + Let's Encrypt SSL**：host 装 nginx + certbot，把 docker compose 端口绑定改成 `127.0.0.1:8091:80`、关闭安全组 8082/8091、只留 80/443
+- ~~**域名 + Let's Encrypt SSL**~~ → ✅ 已完成，见 **阶段 4**（MogooUtils 已上 `https://menu.mogoocloud.cn`；mogooErp 待部署后照 `erp.` 子域名套一遍）
 - **自动备份**：cron + `mysqldump` + rsync 到腾讯云 COS
 - **freshprice / MogooApi 部署**：相同模板套用，端口分配见上表
 - **监控告警**：腾讯云监控 ECS 基础指标够用，业务层面可后续加 Prometheus
