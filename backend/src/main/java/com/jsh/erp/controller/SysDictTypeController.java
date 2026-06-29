@@ -93,7 +93,7 @@ public class SysDictTypeController extends BaseController {
 
     @DeleteMapping(value = "/delete")
     @Operation(summary = "删除")
-    public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
+    public String deleteResource(@RequestParam(value = "id", required = false) Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = dictTypeService.deleteDictType(id, request);
         return returnStr(objectMap, delete);

@@ -50,7 +50,7 @@ public class FunctionController extends BaseController {
 
     @GetMapping(value = "/info")
     @Operation(summary = "根据id获取信息")
-    public String getList(@RequestParam("id") Long id,
+    public String getList(@RequestParam(value = "id", required = false) Long id,
                           HttpServletRequest request) throws Exception {
         Function function = functionService.getFunction(id);
         Map<String, Object> objectMap = new HashMap<>();
@@ -90,7 +90,7 @@ public class FunctionController extends BaseController {
 
     @DeleteMapping(value = "/delete")
     @Operation(summary = "删除")
-    public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
+    public String deleteResource(@RequestParam(value = "id", required = false) Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = functionService.deleteFunction(id, request);
         return returnStr(objectMap, delete);
@@ -311,7 +311,7 @@ public class FunctionController extends BaseController {
      */
     @GetMapping(value = "/findRoleFunctionsById")
     @Operation(summary = "根据id列表查找功能信息")
-    public BaseResponseInfo findByIds(@RequestParam("roleId") Long roleId,
+    public BaseResponseInfo findByIds(@RequestParam(value = "roleId", required = false) Long roleId,
                                       HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try {

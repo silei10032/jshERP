@@ -39,7 +39,7 @@ public class MsgController extends BaseController {
 
     @GetMapping(value = "/info")
     @Operation(summary = "根据id获取信息")
-    public String getList(@RequestParam("id") Long id,
+    public String getList(@RequestParam(value = "id", required = false) Long id,
                           HttpServletRequest request) throws Exception {
         Msg msg = msgService.getMsg(id);
         Map<String, Object> objectMap = new HashMap<>();
@@ -78,7 +78,7 @@ public class MsgController extends BaseController {
 
     @DeleteMapping(value = "/delete")
     @Operation(summary = "删除")
-    public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
+    public String deleteResource(@RequestParam(value = "id", required = false) Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = msgService.deleteMsg(id, request);
         return returnStr(objectMap, delete);

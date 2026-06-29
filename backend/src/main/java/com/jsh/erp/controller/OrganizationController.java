@@ -43,7 +43,7 @@ public class OrganizationController {
 
     @GetMapping(value = "/info")
     @Operation(summary = "根据id获取信息")
-    public String getList(@RequestParam("id") Long id,
+    public String getList(@RequestParam(value = "id", required = false) Long id,
                           HttpServletRequest request) throws Exception {
         Organization organization = organizationService.getOrganization(id);
         Map<String, Object> objectMap = new HashMap<>();
@@ -73,7 +73,7 @@ public class OrganizationController {
 
     @DeleteMapping(value = "/delete")
     @Operation(summary = "删除")
-    public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
+    public String deleteResource(@RequestParam(value = "id", required = false) Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = organizationService.deleteOrganization(id, request);
         return returnStr(objectMap, delete);
@@ -109,7 +109,7 @@ public class OrganizationController {
      */
     @GetMapping(value = "/findById")
     @Operation(summary = "根据id来查询部门信息")
-    public BaseResponseInfo findById(@RequestParam("id") Long id, HttpServletRequest request) throws Exception {
+    public BaseResponseInfo findById(@RequestParam(value = "id", required = false) Long id, HttpServletRequest request) throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {

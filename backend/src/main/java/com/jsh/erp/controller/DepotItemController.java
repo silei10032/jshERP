@@ -91,7 +91,7 @@ public class DepotItemController {
             @RequestParam(value = "number",required = false) String number,
             @RequestParam(value = "beginTime",required = false) String beginTime,
             @RequestParam(value = "endTime",required = false) String endTime,
-            @RequestParam("materialId") Long mId,
+            @RequestParam(value = "materialId", required = false) Long mId,
             HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         if(StringUtil.isNotEmpty(beginTime)) {
@@ -190,7 +190,7 @@ public class DepotItemController {
      */
     @GetMapping(value = "/getDetailList")
     @Operation(summary = "单据明细列表")
-    public BaseResponseInfo getDetailList(@RequestParam("headerId") Long headerId,
+    public BaseResponseInfo getDetailList(@RequestParam(value = "headerId", required = false) Long headerId,
                               @RequestParam(value = "mpList", required = false) String mpList,
                               @RequestParam(value = "linkType", required = false) String linkType,
                               @RequestParam(value = "isReadOnly", required = false) String isReadOnly,
@@ -333,8 +333,8 @@ public class DepotItemController {
      */
     @GetMapping(value = "/getInOutStock")
     @Operation(summary = "进销存统计查询")
-    public BaseResponseInfo getInOutStock(@RequestParam("currentPage") Integer currentPage,
-                                      @RequestParam("pageSize") Integer pageSize,
+    public BaseResponseInfo getInOutStock(@RequestParam(value = "currentPage", required = false) Integer currentPage,
+                                      @RequestParam(value = "pageSize", required = false) Integer pageSize,
                                       @RequestParam(value = "depotIds",required = false) String depotIds,
                                       @RequestParam(value = "categoryId", required = false) Long categoryId,
                                       @RequestParam("beginTime") String beginTime,
@@ -503,7 +503,7 @@ public class DepotItemController {
     @Operation(summary = "根据仓库和商品查询库存分布情况-带时间段参数")
     public String getMaterialDepotStockByParam(
             @RequestParam(value = "depotIds",required = false) String depotIds,
-            @RequestParam("materialId") Long mId,
+            @RequestParam(value = "materialId", required = false) Long mId,
             @RequestParam(value = "unitPrice", required = false) BigDecimal unitPrice,
             @RequestParam("beginTime") String beginTime,
             @RequestParam("endTime") String endTime,
@@ -586,8 +586,8 @@ public class DepotItemController {
      */
     @GetMapping(value = "/buyIn")
     @Operation(summary = "采购统计")
-    public BaseResponseInfo buyIn(@RequestParam("currentPage") Integer currentPage,
-                                  @RequestParam("pageSize") Integer pageSize,
+    public BaseResponseInfo buyIn(@RequestParam(value = "currentPage", required = false) Integer currentPage,
+                                  @RequestParam(value = "pageSize", required = false) Integer pageSize,
                                   @RequestParam("beginTime") String beginTime,
                                   @RequestParam("endTime") String endTime,
                                   @RequestParam(value = "organId", required = false) Long organId,
@@ -679,8 +679,8 @@ public class DepotItemController {
      */
     @GetMapping(value = "/retailOut")
     @Operation(summary = "零售统计")
-    public BaseResponseInfo retailOut(@RequestParam("currentPage") Integer currentPage,
-                                      @RequestParam("pageSize") Integer pageSize,
+    public BaseResponseInfo retailOut(@RequestParam(value = "currentPage", required = false) Integer currentPage,
+                                      @RequestParam(value = "pageSize", required = false) Integer pageSize,
                                       @RequestParam("beginTime") String beginTime,
                                       @RequestParam("endTime") String endTime,
                                       @RequestParam(value = "organId", required = false) Long organId,
@@ -773,8 +773,8 @@ public class DepotItemController {
      */
     @GetMapping(value = "/saleOut")
     @Operation(summary = "销售统计")
-    public BaseResponseInfo saleOut(@RequestParam("currentPage") Integer currentPage,
-                                    @RequestParam("pageSize") Integer pageSize,
+    public BaseResponseInfo saleOut(@RequestParam(value = "currentPage", required = false) Integer currentPage,
+                                    @RequestParam(value = "pageSize", required = false) Integer pageSize,
                                     @RequestParam("beginTime") String beginTime,
                                     @RequestParam("endTime") String endTime,
                                     @RequestParam(value = "organId", required = false) Long organId,
@@ -877,8 +877,8 @@ public class DepotItemController {
      */
     @GetMapping(value = "/findStockWarningCount")
     @Operation(summary = "库存预警报表")
-    public BaseResponseInfo findStockWarningCount(@RequestParam("currentPage") Integer currentPage,
-                                                  @RequestParam("pageSize") Integer pageSize,
+    public BaseResponseInfo findStockWarningCount(@RequestParam(value = "currentPage", required = false) Integer currentPage,
+                                                  @RequestParam(value = "pageSize", required = false) Integer pageSize,
                                                   @RequestParam("materialParam") String materialParam,
                                                   @RequestParam(value = "depotId", required = false) Long depotId,
                                                   @RequestParam(value = "categoryId", required = false) Long categoryId,
@@ -1036,8 +1036,8 @@ public class DepotItemController {
     @GetMapping(value = "/getBatchNumberList")
     @Operation(summary = "获取批次商品列表信息")
     public BaseResponseInfo getBatchNumberList(@RequestParam("name") String name,
-                                               @RequestParam("depotItemId") Long depotItemId,
-                                               @RequestParam("depotId") Long depotId,
+                                               @RequestParam(value = "depotItemId", required = false) Long depotItemId,
+                                               @RequestParam(value = "depotId", required = false) Long depotId,
                                                @RequestParam("barCode") String barCode,
                                                @RequestParam(value = "batchNumber", required = false) String batchNumber,
                                                HttpServletRequest request) throws Exception{

@@ -58,7 +58,7 @@ public class DepotController extends BaseController {
 
     @GetMapping(value = "/info")
     @Operation(summary = "根据id获取信息")
-    public String getList(@RequestParam("id") Long id,
+    public String getList(@RequestParam(value = "id", required = false) Long id,
                           HttpServletRequest request) throws Exception {
         Depot depot = depotService.getDepot(id);
         Map<String, Object> objectMap = new HashMap<>();
@@ -99,7 +99,7 @@ public class DepotController extends BaseController {
 
     @DeleteMapping(value = "/delete")
     @Operation(summary = "删除")
-    public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
+    public String deleteResource(@RequestParam(value = "id", required = false) Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = depotService.deleteDepot(id, request);
         return returnStr(objectMap, delete);
@@ -248,7 +248,7 @@ public class DepotController extends BaseController {
      */
     @GetMapping(value = "/getAllListWithStock")
     @Operation(summary = "仓库列表-带库存")
-    public BaseResponseInfo getAllList(@RequestParam("mId") Long mId,
+    public BaseResponseInfo getAllList(@RequestParam(value = "mId", required = false) Long mId,
                                        HttpServletRequest request) {
         BaseResponseInfo res = new BaseResponseInfo();
         try {

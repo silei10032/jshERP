@@ -62,7 +62,7 @@ public class DepotHeadController extends BaseController {
 
     @GetMapping(value = "/info")
     @Operation(summary = "根据id获取信息")
-    public String getList(@RequestParam("id") Long id,
+    public String getList(@RequestParam(value = "id", required = false) Long id,
                           HttpServletRequest request) throws Exception {
         DepotHead depotHead = depotHeadService.getDepotHead(id);
         Map<String, Object> objectMap = new HashMap<>();
@@ -103,7 +103,7 @@ public class DepotHeadController extends BaseController {
 
     @DeleteMapping(value = "/delete")
     @Operation(summary = "删除")
-    public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
+    public String deleteResource(@RequestParam(value = "id", required = false) Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = depotHeadService.deleteDepotHead(id, request);
         return returnStr(objectMap, delete);
@@ -193,8 +193,8 @@ public class DepotHeadController extends BaseController {
      */
     @GetMapping(value = "/findInOutDetail")
     @Operation(summary = "入库出库明细接口")
-    public BaseResponseInfo findInOutDetail(@RequestParam("currentPage") Integer currentPage,
-                                            @RequestParam("pageSize") Integer pageSize,
+    public BaseResponseInfo findInOutDetail(@RequestParam(value = "currentPage", required = false) Integer currentPage,
+                                            @RequestParam(value = "pageSize", required = false) Integer pageSize,
                                             @RequestParam(value = "organId", required = false) Integer oId,
                                             @RequestParam("number") String number,
                                             @RequestParam("materialParam") String materialParam,
@@ -278,8 +278,8 @@ public class DepotHeadController extends BaseController {
      */
     @GetMapping(value = "/findInOutMaterialCount")
     @Operation(summary = "入库出库汇总接口")
-    public BaseResponseInfo findInOutMaterialCount(@RequestParam("currentPage") Integer currentPage,
-                                                   @RequestParam("pageSize") Integer pageSize,
+    public BaseResponseInfo findInOutMaterialCount(@RequestParam(value = "currentPage", required = false) Integer currentPage,
+                                                   @RequestParam(value = "pageSize", required = false) Integer pageSize,
                                                    @RequestParam(value = "organId", required = false) Integer oId,
                                                    @RequestParam("materialParam") String materialParam,
                                                    @RequestParam(value = "depotId", required = false) Long depotId,
@@ -350,8 +350,8 @@ public class DepotHeadController extends BaseController {
      */
     @GetMapping(value = "/findAllocationDetail")
     @Operation(summary = "调拨明细统计")
-    public BaseResponseInfo findallocationDetail(@RequestParam("currentPage") Integer currentPage,
-                                                 @RequestParam("pageSize") Integer pageSize,
+    public BaseResponseInfo findallocationDetail(@RequestParam(value = "currentPage", required = false) Integer currentPage,
+                                                 @RequestParam(value = "pageSize", required = false) Integer pageSize,
                                                  @RequestParam("number") String number,
                                                  @RequestParam("materialParam") String materialParam,
                                                  @RequestParam(value = "depotId", required = false) Long depotId,
@@ -436,8 +436,8 @@ public class DepotHeadController extends BaseController {
      */
     @GetMapping(value = "/getStatementAccount")
     @Operation(summary = "对账单接口")
-    public BaseResponseInfo getStatementAccount(@RequestParam("currentPage") Integer currentPage,
-                                                 @RequestParam("pageSize") Integer pageSize,
+    public BaseResponseInfo getStatementAccount(@RequestParam(value = "currentPage", required = false) Integer currentPage,
+                                                 @RequestParam(value = "pageSize", required = false) Integer pageSize,
                                                  @RequestParam("beginTime") String beginTime,
                                                  @RequestParam("endTime") String endTime,
                                                  @RequestParam(value = "organId", required = false) Integer organId,
@@ -687,8 +687,8 @@ public class DepotHeadController extends BaseController {
     @GetMapping(value = "/debtList")
     @Operation(summary = "查询存在欠款的单据")
     public String debtList(@RequestParam(value = Constants.SEARCH, required = false) String search,
-                           @RequestParam("currentPage") Integer currentPage,
-                           @RequestParam("pageSize") Integer pageSize,
+                           @RequestParam(value = "currentPage", required = false) Integer currentPage,
+                           @RequestParam(value = "pageSize", required = false) Integer pageSize,
                            HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         String organIdStr = StringUtil.getInfo(search, "organId");
@@ -757,8 +757,8 @@ public class DepotHeadController extends BaseController {
     @GetMapping(value = "/waitBillList")
     @Operation(summary = "查询等待入库或出库的单据")
     public String waitBillList(@RequestParam(value = Constants.SEARCH, required = false) String search,
-                           @RequestParam("currentPage") Integer currentPage,
-                           @RequestParam("pageSize") Integer pageSize,
+                           @RequestParam(value = "currentPage", required = false) Integer currentPage,
+                           @RequestParam(value = "pageSize", required = false) Integer pageSize,
                            HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         String number = StringUtil.getInfo(search, "number");

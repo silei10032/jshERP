@@ -66,7 +66,7 @@ public class MaterialController extends BaseController {
 
     @GetMapping(value = "/info")
     @Operation(summary = "根据id获取信息")
-    public String getList(@RequestParam("id") Long id,
+    public String getList(@RequestParam(value = "id", required = false) Long id,
                           HttpServletRequest request) throws Exception {
         Material material = materialService.getMaterial(id);
         Map<String, Object> objectMap = new HashMap<>();
@@ -123,7 +123,7 @@ public class MaterialController extends BaseController {
 
     @DeleteMapping(value = "/delete")
     @Operation(summary = "删除")
-    public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
+    public String deleteResource(@RequestParam(value = "id", required = false) Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = materialService.deleteMaterial(id, request);
         return returnStr(objectMap, delete);
@@ -170,11 +170,11 @@ public class MaterialController extends BaseController {
      */
     @GetMapping(value = "/checkIsExist")
     @Operation(summary = "检查商品是否存在")
-    public String checkIsExist(@RequestParam("id") Long id, @RequestParam("name") String name,
+    public String checkIsExist(@RequestParam(value = "id", required = false) Long id, @RequestParam("name") String name,
                                @RequestParam("model") String model, @RequestParam("color") String color,
                                @RequestParam("standard") String standard, @RequestParam("mfrs") String mfrs,
                                @RequestParam("otherField1") String otherField1, @RequestParam("otherField2") String otherField2,
-                               @RequestParam("otherField3") String otherField3, @RequestParam("unit") String unit,@RequestParam("unitId") Long unitId,
+                               @RequestParam("otherField3") String otherField3, @RequestParam("unit") String unit,@RequestParam(value = "unitId", required = false) Long unitId,
                                HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<String, Object>();
         int exist = materialService.checkIsExist(id, name, StringUtil.toNull(model), StringUtil.toNull(color),
@@ -218,7 +218,7 @@ public class MaterialController extends BaseController {
      */
     @GetMapping(value = "/findById")
     @Operation(summary = "根据id来查询商品名称")
-    public BaseResponseInfo findById(@RequestParam("id") Long id, HttpServletRequest request) throws Exception{
+    public BaseResponseInfo findById(@RequestParam(value = "id", required = false) Long id, HttpServletRequest request) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
         try {
             List<MaterialVo4Unit> list = materialService.findById(id);
@@ -240,7 +240,7 @@ public class MaterialController extends BaseController {
      */
     @GetMapping(value = "/findByIdWithBarCode")
     @Operation(summary = "根据meId来查询商品名称")
-    public BaseResponseInfo findByIdWithBarCode(@RequestParam("meId") Long meId,
+    public BaseResponseInfo findByIdWithBarCode(@RequestParam(value = "meId", required = false) Long meId,
                                                 @RequestParam("mpList") String mpList,
                                                 HttpServletRequest request) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
@@ -306,8 +306,8 @@ public class MaterialController extends BaseController {
                                   @RequestParam(value = "otherField3", required = false) String otherField3,
                                   @RequestParam(value = "enableSerialNumber", required = false) String enableSerialNumber,
                                   @RequestParam(value = "enableBatchNumber", required = false) String enableBatchNumber,
-                                  @RequestParam("page") Integer currentPage,
-                                  @RequestParam("rows") Integer pageSize,
+                                  @RequestParam(value = "page", required = false) Integer currentPage,
+                                  @RequestParam(value = "rows", required = false) Integer pageSize,
                                   HttpServletRequest request) throws Exception{
         JSONObject object = new JSONObject();
         try {
@@ -517,8 +517,8 @@ public class MaterialController extends BaseController {
     @Operation(summary = "获取商品序列号")
     public JSONObject getMaterialEnableSerialNumberList(
                                 @RequestParam(value = "q", required = false) String q,
-                                @RequestParam("page") Integer currentPage,
-                                @RequestParam("rows") Integer pageSize,
+                                @RequestParam(value = "page", required = false) Integer currentPage,
+                                @RequestParam(value = "rows", required = false) Integer pageSize,
                                 HttpServletRequest request,
                                 HttpServletResponse response)throws Exception {
         JSONObject object= new JSONObject();
@@ -738,13 +738,13 @@ public class MaterialController extends BaseController {
      */
     @GetMapping(value = "/getListWithStock")
     @Operation(summary = "商品库存查询")
-    public BaseResponseInfo getListWithStock(@RequestParam("currentPage") Integer currentPage,
-                                             @RequestParam("pageSize") Integer pageSize,
+    public BaseResponseInfo getListWithStock(@RequestParam(value = "currentPage", required = false) Integer currentPage,
+                                             @RequestParam(value = "pageSize", required = false) Integer pageSize,
                                              @RequestParam(value = "depotIds", required = false) String depotIds,
                                              @RequestParam(value = "categoryId", required = false) Long categoryId,
                                              @RequestParam(value = "position", required = false) String position,
                                              @RequestParam("materialParam") String materialParam,
-                                             @RequestParam("zeroStock") Integer zeroStock,
+                                             @RequestParam(value = "zeroStock", required = false) Integer zeroStock,
                                              @RequestParam(value = "column", required = false, defaultValue = "createTime") String column,
                                              @RequestParam(value = "order", required = false, defaultValue = "desc") String order,
                                              HttpServletRequest request)throws Exception {
@@ -895,7 +895,7 @@ public class MaterialController extends BaseController {
     @Operation(summary = "根据仓库和商品查询库存分布情况")
     public TableDataInfo getMaterialDepotStock(
             @RequestParam(value = "depotIds",required = false) String depotIds,
-            @RequestParam("materialId") Long mId,
+            @RequestParam(value = "materialId", required = false) Long mId,
             HttpServletRequest request)throws Exception {
         List<MaterialDepotStock> list = materialService.getMaterialDepotStock(depotIds, mId, request);
         return getDataTable(list);

@@ -46,7 +46,7 @@ public class AccountController extends BaseController {
 
     @GetMapping(value = "/info")
     @Operation(summary = "根据id获取信息")
-    public String getList(@RequestParam("id") Long id,
+    public String getList(@RequestParam(value = "id", required = false) Long id,
                           HttpServletRequest request) throws Exception {
         Account account = accountService.getAccount(id);
         Map<String, Object> objectMap = new HashMap<>();
@@ -87,7 +87,7 @@ public class AccountController extends BaseController {
 
     @DeleteMapping(value = "/delete")
     @Operation(summary = "删除")
-    public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
+    public String deleteResource(@RequestParam(value = "id", required = false) Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = accountService.deleteAccount(id, request);
         return returnStr(objectMap, delete);
@@ -179,10 +179,10 @@ public class AccountController extends BaseController {
      */
     @GetMapping(value = "/findAccountInOutList")
     @Operation(summary = "账户流水信息")
-    public BaseResponseInfo findAccountInOutList(@RequestParam("currentPage") Integer currentPage,
-                                                 @RequestParam("pageSize") Integer pageSize,
-                                                 @RequestParam("accountId") Long accountId,
-                                                 @RequestParam("initialAmount") BigDecimal initialAmount,
+    public BaseResponseInfo findAccountInOutList(@RequestParam(value = "currentPage", required = false) Integer currentPage,
+                                                 @RequestParam(value = "pageSize", required = false) Integer pageSize,
+                                                 @RequestParam(value = "accountId", required = false) Long accountId,
+                                                 @RequestParam(value = "initialAmount", required = false) BigDecimal initialAmount,
                                                  @RequestParam(value = "number",required = false) String number,
                                                  @RequestParam(value = "beginTime",required = false) String beginTime,
                                                  @RequestParam(value = "endTime",required = false) String endTime,

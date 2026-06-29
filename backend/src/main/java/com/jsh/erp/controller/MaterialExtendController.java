@@ -37,7 +37,7 @@ public class MaterialExtendController {
 
     @GetMapping(value = "/info")
     @Operation(summary = "根据id获取信息")
-    public String getList(@RequestParam("id") Long id,
+    public String getList(@RequestParam(value = "id", required = false) Long id,
                           HttpServletRequest request) throws Exception {
         MaterialExtend materialExtend = materialExtendService.getMaterialExtend(id);
         Map<String, Object> objectMap = new HashMap<>();
@@ -67,7 +67,7 @@ public class MaterialExtendController {
 
     @DeleteMapping(value = "/delete")
     @Operation(summary = "删除")
-    public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
+    public String deleteResource(@RequestParam(value = "id", required = false) Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = materialExtendService.deleteMaterialExtend(id, request);
         return returnStr(objectMap, delete);
@@ -83,7 +83,7 @@ public class MaterialExtendController {
 
     @GetMapping(value = "/getDetailList")
     @Operation(summary = "价格信息列表")
-    public BaseResponseInfo getDetailList(@RequestParam("materialId") Long materialId,
+    public BaseResponseInfo getDetailList(@RequestParam(value = "materialId", required = false) Long materialId,
                                           HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -157,7 +157,7 @@ public class MaterialExtendController {
      */
     @GetMapping(value = "/checkIsBarCodeExist")
     @Operation(summary = "校验条码是否存在")
-    public BaseResponseInfo checkIsBarCodeExist(@RequestParam("id") Long id,
+    public BaseResponseInfo checkIsBarCodeExist(@RequestParam(value = "id", required = false) Long id,
                                                 @RequestParam("barCode") String barCode,
                                              HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();

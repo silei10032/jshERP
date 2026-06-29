@@ -41,7 +41,7 @@ public class MaterialCategoryController extends BaseController {
 
     @GetMapping(value = "/info")
     @Operation(summary = "根据id获取信息")
-    public String getList(@RequestParam("id") Long id,
+    public String getList(@RequestParam(value = "id", required = false) Long id,
                           HttpServletRequest request) throws Exception {
         MaterialCategory materialCategory = materialCategoryService.getMaterialCategory(id);
         Map<String, Object> objectMap = new HashMap<>();
@@ -81,7 +81,7 @@ public class MaterialCategoryController extends BaseController {
 
     @DeleteMapping(value = "/delete")
     @Operation(summary = "删除")
-    public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
+    public String deleteResource(@RequestParam(value = "id", required = false) Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = materialCategoryService.deleteMaterialCategory(id, request);
         return returnStr(objectMap, delete);
@@ -120,7 +120,7 @@ public class MaterialCategoryController extends BaseController {
      */
     @GetMapping(value = "/getAllList")
     @Operation(summary = "获取全部商品类别")
-    public BaseResponseInfo getAllList(@RequestParam("parentId") Long parentId, HttpServletRequest request) throws Exception{
+    public BaseResponseInfo getAllList(@RequestParam(value = "parentId", required = false) Long parentId, HttpServletRequest request) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
         try {
             List<MaterialCategory> materialCategoryList = materialCategoryService.getAllList(parentId);
@@ -142,7 +142,7 @@ public class MaterialCategoryController extends BaseController {
      */
     @GetMapping(value = "/findById")
     @Operation(summary = "根据id来查询商品名称")
-    public BaseResponseInfo findById(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
+    public BaseResponseInfo findById(@RequestParam(value = "id", required = false) Long id, HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
             List<MaterialCategory> dataList = materialCategoryService.findById(id);

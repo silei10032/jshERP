@@ -40,7 +40,7 @@ public class AccountItemController {
 
     @GetMapping(value = "/getDetailList")
     @Operation(summary = "明细列表")
-    public BaseResponseInfo getDetailList(@RequestParam("headerId") Long headerId,
+    public BaseResponseInfo getDetailList(@RequestParam(value = "headerId", required = false) Long headerId,
                                           HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
