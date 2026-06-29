@@ -366,14 +366,16 @@ sudo chown -R ubuntu:ubuntu /data/mogoo-erp
 
 ### 3.5 配置 .env
 
+> ⚠️ `.env.example` 里 `DB_PASSWORD`/`REDIS_PASSWORD` 的默认值是 `root12345`——**这是占位符，不是真实密码**。看着像填好了，但只 `cp` 不改 → app 连库报 `Access denied` 一直 `Restarting`。本服务器真实密码是 `mogoo123`（MySQL root + Redis 同一个，可对照 `/opt/MogooUtils/.env`）。
+
 ```bash
 cp .env.example .env
 vi .env
-# 必填：
-#   DB_PASSWORD=<MySQL root 密码>
-#   REDIS_PASSWORD=<Redis 密码>
+# 必填（务必改成真实值 mogoo123，别留 root12345）：
+#   DB_PASSWORD=mogoo123
+#   REDIS_PASSWORD=mogoo123
 # 推荐覆盖：
-#   REDIS_DB=1
+#   REDIS_DB=1                 # 与 freshprice(db0) 隔离
 #   LOG_LEVEL_APP=INFO
 #   UPLOAD_DIR=/data/mogoo-erp/upload
 #   EXPORT_DIR=/data/mogoo-erp/export
@@ -522,7 +524,10 @@ mysqldump -u root -p canteen_delivery | gzip > ~/backups/canteen_delivery_$(date
 |---|---|
 | `docker compose up` 报 `DB_PASSWORD 必填` | `.env` 没填 `DB_PASSWORD` |
 | 后端容器 `Restarting (1)`，logs 看到 `ClassNotFoundException: ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP` | 拉的不是最新代码，`git pull` 同步到 commit `aa59c60d` 之后 |
-| 后端 `APPLICATION FAILED TO START ... beans form a cycle` | 同上，最新代码已加 `allow-circular-references=true` |
+| 后端 `APPLICATION FAILED TO START ... beans form a cycle` | 一阶循环依赖，最新代码已加 `allow-circular-references=true` |
+| 后端 `Restarting`，logs 看到 `BeanCurrentlyInCreationException: 'platformConfigService' ... injected ... in its raw version ... but has eventually been wrapped` | 二阶循环依赖（带 @Transactional/@Async 的 bean 被 AOP 包装），最新代码已在 `UserService` 注入侧加 `@Lazy`（commit `d8fdec4f`）。拉到此 commit 之后即可 |
+| 后端 `Restarting`，logs 看到 `Access denied for user 'root'@'172.x'` 或连库失败 | `.env` 的 `DB_PASSWORD`/`REDIS_PASSWORD` 是示例默认 `root12345`，**没改成服务器真实值 `mogoo123`**。`cp .env.example .env` 后必须改密码，别被默认值骗了 |
+| app 起来了但**登录失败 / 列表无数据 / 报表无字段** | `mogoo_erp` 库是空的——漏了 §3.3 导 SQL。`mysql -uroot -p mogoo_erp -e "SHOW TABLES"` 应有 32 张表、`jsh_user` 3 行 |
 | 浏览器列表请求全 400 | Tomcat 严格 RFC，最新代码已加 `relaxed-query-chars` |
 | `/swagger-ui/index.html` 返回 500 + "loginOut" | LogCostFilter 白名单老路径，最新代码已修 |
 | 容器内 ping `host.docker.internal` 失败 | docker-compose.yml 没有 `extra_hosts: host-gateway`，最新代码已加 |
